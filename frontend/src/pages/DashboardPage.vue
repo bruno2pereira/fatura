@@ -1,60 +1,82 @@
 <template>
   <q-page class="q-pa-md">
  <q-card flat bordered class="q-mb-md bg-white">
-  <q-card-section class="row items-center q-py-sm">
-    <!-- Título e Total -->
-    <div class="row items-center">
-      <div class="text-h6 text-weight-bold q-mr-md text-grey-9">
-        Invoices
+  <q-card-section class="q-pa-sm q-pa-md-md">
+    <!-- Layout Responsivo: Vertical em mobile, Horizontal em desktop -->
+    <div class="row q-col-gutter-sm">
+      <!-- Título e Total -->
+      <div class="col-12 col-md-auto">
+        <div class="row items-center justify-between justify-md-start">
+          <div :class="$q.screen.lt.md ? 'text-h6' : 'text-h6'" class="text-weight-bold q-mr-md text-grey-9">
+            Invoices
+          </div>
+          <q-chip outline color="primary" icon="euro_symbol" class="text-weight-bold">
+            Total: {{ totalSpend.toFixed(2) }}
+          </q-chip>
+        </div>
       </div>
-      <q-chip outline color="primary" icon="euro_symbol" class="text-weight-bold">
-        Total: {{ totalSpend.toFixed(2) }}
-      </q-chip>
-    </div>
 
-    <q-space />
-    
-    <!-- Navegação de Data -->
-    <div class="row items-center q-mx-md bg-grey-2 rounded-borders q-pa-xs">
-      <q-btn flat round dense size="sm" icon="chevron_left" color="grey-8" @click="prevMonth" />
+      <div class="col-12 col-md"></div>
       
-      <q-btn flat dense no-caps class="q-px-sm text-subtitle2 text-grey-9" icon-right="event" :label="currentMonthLabel">
-        <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-          <q-date v-model="selectedDate" range minimal mask="YYYY-MM-DD" emit-immediately @update:model-value="onDateChange">
-            <div class="row items-center justify-end">
-              <q-btn v-close-popup label="Close" color="primary" flat />
-            </div>
-          </q-date>
-        </q-popup-proxy>
-      </q-btn>
-      
-      <q-btn flat round dense size="sm" icon="chevron_right" color="grey-8" @click="nextMonth" />
-    </div>
+      <!-- Navegação de Data -->
+      <div class="col-12 col-md-auto">
+        <div class="row items-center justify-center bg-grey-2 rounded-borders q-pa-xs">
+          <q-btn flat round dense size="sm" icon="chevron_left" color="grey-8" @click="prevMonth" />
+          
+          <q-btn 
+            flat 
+            dense 
+            no-caps 
+            class="q-px-sm text-grey-9" 
+            :class="$q.screen.lt.sm ? 'text-caption' : 'text-subtitle2'"
+            icon-right="event" 
+            :label="currentMonthLabel"
+          >
+            <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+              <q-date v-model="selectedDate" range minimal mask="YYYY-MM-DD" emit-immediately @update:model-value="onDateChange">
+                <div class="row items-center justify-end">
+                  <q-btn v-close-popup label="Fechar" color="primary" flat />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-btn>
+          
+          <q-btn flat round dense size="sm" icon="chevron_right" color="grey-8" @click="nextMonth" />
+        </div>
+      </div>
 
-    <!-- Botões de Ação -->
-    <div class="row items-center q-gutter-x-sm">
-      <q-btn 
-        v-if="canAdd" 
-        unelevated 
-        color="primary" 
-        icon="add" 
-        label="Upload Invoice" 
-        @click="showUploadDialog = true" 
-      />
-      <q-btn flat round color="grey-7" icon="logout" @click="logout">
-        <q-tooltip>Logout</q-tooltip>
-      </q-btn>
+      <!-- Botões de Ação -->
+      <div class="col-12 col-md-auto">
+        <div class="row items-center justify-end q-gutter-x-sm">
+          <q-btn 
+            v-if="canAdd" 
+            unelevated 
+            color="primary" 
+            icon="add" 
+            :label="$q.screen.gt.xs ? 'Upload Invoice' : undefined"
+            @click="showUploadDialog = true" 
+            class="full-width-xs"
+          >
+            <q-tooltip v-if="$q.screen.xs">Upload Invoice</q-tooltip>
+          </q-btn>
+          <q-btn flat round color="grey-7" icon="logout" @click="logout">
+            <q-tooltip>Logout</q-tooltip>
+          </q-btn>
+        </div>
+      </div>
     </div>
   </q-card-section>
 </q-card>
 
 
+    <!-- Tabela para Desktop -->
     <q-table
+      v-if="$q.screen.gt.sm"
       :rows="invoices"
       :columns="columns"
       row-key="id"
       :loading="loading"
-      no-data-label="No invoices found for this period"
+      no-data-label="Nenhuma fatura encontrada para este período"
     >
       <template v-slot:body-cell-file="props">
         <q-td :props="props">
@@ -63,7 +85,7 @@
                 <q-avatar rounded size="40px">
                   <q-img :src="getThumbUrl(props.row)" spinner-color="white" />
                 </q-avatar>
-                <q-tooltip>View Image</q-tooltip>
+                <q-tooltip>Ver Imagem</q-tooltip>
              </a>
           </div>
           <q-btn 
@@ -76,7 +98,7 @@
             :href="getFileUrl(props.row)" 
             target="_blank" 
           >
-             <q-tooltip>View {{ props.row.file }}</q-tooltip>
+             <q-tooltip>Ver {{ props.row.file }}</q-tooltip>
           </q-btn>
         </q-td>
       </template>
@@ -91,29 +113,128 @@
             icon="delete" 
             @click="deleteInvoice(props.row.id)" 
           >
-            <q-tooltip>Delete</q-tooltip>
+            <q-tooltip>Eliminar</q-tooltip>
           </q-btn>
         </q-td>
       </template>
     </q-table>
 
+    <!-- Cards para Mobile -->
+    <div v-else>
+      <div v-if="loading" class="text-center q-pa-md">
+        <q-spinner color="primary" size="3em" />
+      </div>
+      
+      <div v-else-if="invoices.length === 0" class="text-center q-pa-md text-grey-6">
+        Nenhuma fatura encontrada para este período
+      </div>
+
+      <div v-else class="q-gutter-sm">
+        <q-card 
+          v-for="invoice in invoices" 
+          :key="invoice.id" 
+          flat 
+          bordered
+          class="q-pa-sm"
+        >
+          <q-card-section class="q-pa-sm">
+            <div class="row items-start q-gutter-sm">
+              <!-- File Preview -->
+              <div class="col-auto">
+                <div v-if="isImage(invoice.file)">
+                  <a :href="getFileUrl(invoice)" target="_blank">
+                    <q-avatar rounded size="60px">
+                      <q-img :src="getThumbUrl(invoice)" spinner-color="white" />
+                    </q-avatar>
+                  </a>
+                </div>
+                <q-btn 
+                  v-else
+                  flat 
+                  round 
+                  size="lg"
+                  color="primary" 
+                  :icon="getFileIcon(invoice.file)" 
+                  type="a" 
+                  :href="getFileUrl(invoice)" 
+                  target="_blank" 
+                />
+              </div>
+
+              <!-- Info -->
+              <div class="col">
+                <div class="text-subtitle2 text-weight-medium text-grey-9">
+                  {{ invoice.description || 'Sem descrição' }}
+                </div>
+                <div class="text-caption text-grey-7 q-mt-xs">
+                  {{ date.formatDate(invoice.date, 'DD/MM/YYYY') }}
+                </div>
+                <div class="text-caption text-grey-6">
+                  Por: {{ invoice.expand?.uploaded_by?.name || invoice.expand?.uploaded_by?.email || 'Desconhecido' }}
+                </div>
+                <div class="text-subtitle1 text-weight-bold text-primary q-mt-xs">
+                  {{ invoice.amount ? `${invoice.amount.toFixed(2)} €` : '-' }}
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="col-auto" v-if="canDelete">
+                <q-btn 
+                  flat 
+                  round 
+                  dense
+                  color="negative" 
+                  icon="delete" 
+                  @click="deleteInvoice(invoice.id)" 
+                >
+                  <q-tooltip>Eliminar</q-tooltip>
+                </q-btn>
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+
     <!-- Upload Dialog -->
-    <q-dialog v-model="showUploadDialog">
-      <q-card style="min-width: 350px">
+    <q-dialog v-model="showUploadDialog" :maximized="$q.screen.lt.md">
+      <q-card :style="$q.screen.gt.sm ? 'min-width: 400px' : ''">
         <q-card-section>
-          <div class="text-h6">Upload Invoice</div>
+          <div class="text-h6">Upload de Fatura</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
           <q-form @submit="uploadInvoice" class="q-gutter-md">
-            <q-file v-model="newInvoice.file" label="Invoice File" filled accept=".pdf,.png,.jpg,.jpeg" :rules="[val => !!val || 'File is required']" />
-            <q-input v-model="newInvoice.date" filled label="Date" type="date" :rules="[val => !!val || 'Date is required']" />
-            <q-input v-model="newInvoice.description" filled label="Description" />
-            <q-input v-model="newInvoice.amount" filled label="Amount" type="number" step="0.01" />
+            <q-file 
+              v-model="newInvoice.file" 
+              label="Ficheiro da Fatura" 
+              filled 
+              accept=".pdf,.png,.jpg,.jpeg" 
+              :rules="[val => !!val || 'Ficheiro é obrigatório']" 
+            />
+            <q-input 
+              v-model="newInvoice.date" 
+              filled 
+              label="Data" 
+              type="date" 
+              :rules="[val => !!val || 'Data é obrigatória']" 
+            />
+            <q-input 
+              v-model="newInvoice.description" 
+              filled 
+              label="Descrição" 
+            />
+            <q-input 
+              v-model="newInvoice.amount" 
+              filled 
+              label="Valor" 
+              type="number" 
+              step="0.01" 
+            />
             
-            <div class="row justify-end">
-              <q-btn flat label="Cancel" v-close-popup />
-              <q-btn label="Upload" type="submit" color="primary" :loading="uploading" />
+            <div class="row justify-end q-gutter-sm">
+              <q-btn flat label="Cancelar" v-close-popup />
+              <q-btn label="Enviar" type="submit" color="primary" :loading="uploading" />
             </div>
           </q-form>
         </q-card-section>
@@ -341,7 +462,7 @@ const uploadInvoice = async () => {
     loadInvoices()
   } catch (e) {
     console.error('Upload failed', e)
-    alert('Upload failed: ' + e.message)
+    alert('Upload falhou: ' + e.message)
   } finally {
     uploading.value = false
   }
@@ -349,8 +470,8 @@ const uploadInvoice = async () => {
 
 const deleteInvoice = (id) => {
   $q.dialog({
-    title: 'Confirm',
-    message: 'Are you sure you want to delete this invoice?',
+    title: 'Confirmar',
+    message: 'Tem a certeza que deseja eliminar esta fatura?',
     cancel: true,
     persistent: true
   }).onOk(async () => {
@@ -359,14 +480,14 @@ const deleteInvoice = (id) => {
       loadInvoices()
       $q.notify({
         color: 'positive',
-        message: 'Invoice deleted successfully',
+        message: 'Fatura eliminada com sucesso',
         icon: 'check'
       })
     } catch (e) {
       console.error('Error deleting invoice', e)
       $q.notify({
         color: 'negative',
-        message: 'Failed to delete invoice',
+        message: 'Falha ao eliminar fatura',
         icon: 'report_problem'
       })
     }

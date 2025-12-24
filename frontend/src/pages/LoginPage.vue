@@ -2,10 +2,10 @@
   <q-layout view="lHh Lpr lFf">
     <q-page-container>
       <q-page class="flex flex-center bg-grey-2">
-        <q-card class="q-pa-md shadow-2 my-card" style="width: 350px;">
+        <q-card class="q-pa-md shadow-2 my-card" :style="$q.screen.gt.xs ? 'width: 400px;' : 'width: 90%; max-width: 350px;'">
           <q-card-section class="text-center">
-            <div class="text-h5 text-weight-bold text-primary">Invoice App</div>
-            <div class="text-subtitle2">Sign in to continue</div>
+            <div :class="$q.screen.lt.sm ? 'text-h5' : 'text-h4'" class="text-weight-bold text-primary">Invoice App</div>
+            <div class="text-subtitle2">Faça login para continuar</div>
           </q-card-section>
 
           <q-card-section>
@@ -13,22 +13,22 @@
               <q-input
                 filled
                 v-model="email"
-                label="Email"
+                label="E-mail"
                 lazy-rules
-                :rules="[ val => val && val.length > 0 || 'Please type your email']"
+                :rules="[ val => val && val.length > 0 || 'Por favor insira o seu e-mail']"
               />
 
               <q-input
                 filled
                 type="password"
                 v-model="password"
-                label="Password"
+                label="Palavra-passe"
                 lazy-rules
-                :rules="[ val => val && val.length > 0 || 'Please type your password']"
+                :rules="[ val => val && val.length > 0 || 'Por favor insira a sua palavra-passe']"
               />
 
               <div>
-                <q-btn label="Login" type="submit" color="primary" class="full-width" :loading="loading"/>
+                <q-btn label="Entrar" type="submit" color="primary" class="full-width" :loading="loading"/>
               </div>
             </q-form>
           </q-card-section>
@@ -60,7 +60,7 @@ const onSubmit = async () => {
     console.error('Login failed:', error)
     $q.notify({
       color: 'negative',
-      message: 'Login failed. Please check your credentials.',
+      message: 'Login falhou. Por favor verifique as suas credenciais.',
       icon: 'report_problem'
     })
   } finally {
