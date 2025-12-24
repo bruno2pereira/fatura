@@ -1,34 +1,60 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="row items-center q-mb-md">
-      <div class="text-h5 q-mr-md">Invoices</div>
-      <q-space />
-      
-      <div class="q-mr-md text-subtitle1">
-        Total: <b>{{ totalSpend.toFixed(2) }} €</b>
+ <q-card flat bordered class="q-mb-md bg-white">
+  <q-card-section class="row items-center q-py-sm">
+    <!-- Título e Total -->
+    <div class="row items-center">
+      <div class="text-h6 text-weight-bold q-mr-md text-grey-9">
+        Invoices
       </div>
-
-      <div class="q-mr-md">
-        <q-btn flat dense icon="event" :label="currentMonthLabel">
-          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-            <q-date v-model="selectedDate" minimal mask="YYYY-MM-DD" emit-immediately @update:model-value="onDateChange">
-              <div class="row items-center justify-end">
-                <q-btn v-close-popup label="Close" color="primary" flat />
-              </div>
-            </q-date>
-          </q-popup-proxy>
-        </q-btn>
-      </div>
-      <q-btn v-if="canAdd" color="primary" icon="add" label="Upload Invoice" @click="showUploadDialog = true" />
-      <q-btn flat icon="logout" @click="logout" />
+      <q-chip outline color="primary" icon="euro_symbol" class="text-weight-bold">
+        Total: {{ totalSpend.toFixed(2) }}
+      </q-chip>
     </div>
+
+    <q-space />
+    
+    <!-- Navegação de Data -->
+    <div class="row items-center q-mx-md bg-grey-2 rounded-borders q-pa-xs">
+      <q-btn flat round dense size="sm" icon="chevron_left" color="grey-8" @click="prevMonth" />
+      
+      <q-btn flat dense no-caps class="q-px-sm text-subtitle2 text-grey-9" icon-right="event" :label="currentMonthLabel">
+        <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+          <q-date v-model="selectedDate" range minimal mask="YYYY-MM-DD" emit-immediately @update:model-value="onDateChange">
+            <div class="row items-center justify-end">
+              <q-btn v-close-popup label="Close" color="primary" flat />
+            </div>
+          </q-date>
+        </q-popup-proxy>
+      </q-btn>
+      
+      <q-btn flat round dense size="sm" icon="chevron_right" color="grey-8" @click="nextMonth" />
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="row items-center q-gutter-x-sm">
+      <q-btn 
+        v-if="canAdd" 
+        unelevated 
+        color="primary" 
+        icon="add" 
+        label="Upload Invoice" 
+        @click="showUploadDialog = true" 
+      />
+      <q-btn flat round color="grey-7" icon="logout" @click="logout">
+        <q-tooltip>Logout</q-tooltip>
+      </q-btn>
+    </div>
+  </q-card-section>
+</q-card>
+
 
     <q-table
       :rows="invoices"
       :columns="columns"
       row-key="id"
       :loading="loading"
-      no-data-label="No invoices found for this date"
+      no-data-label="No invoices found for this period"
     >
       <template v-slot:body-cell-file="props">
         <q-td :props="props">
@@ -51,6 +77,21 @@
             target="_blank" 
           >
              <q-tooltip>View {{ props.row.file }}</q-tooltip>
+          </q-btn>
+        </q-td>
+      </template>
+
+      <template v-slot:body-cell-actions="props">
+        <q-td :props="props">
+          <q-btn 
+            v-if="canDelete" 
+            flat 
+            round 
+            color="negative" 
+            icon="delete" 
+            @click="deleteInvoice(props.row.id)" 
+          >
+            <q-tooltip>Delete</q-tooltip>
           </q-btn>
         </q-td>
       </template>
@@ -84,16 +125,28 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { pb } from 'boot/pocketbase'
-import { date } from 'quasar'
+import { date, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const $q = useQuasar()
 const invoices = ref([])
 const loading = ref(false)
 const uploading = ref(false)
 const showUploadDialog = ref(false)
-// Changed to full date for daily filtering
-const selectedDate = ref(date.formatDate(Date.now(), 'YYYY-MM-DD'))
+
+// Function to get current month range
+const getCurrentMonthRange = () => {
+  const now = new Date()
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+  return {
+    from: date.formatDate(firstDay, 'YYYY-MM-DD'),
+    to: date.formatDate(lastDay, 'YYYY-MM-DD')
+  }
+}
+
+const selectedDate = ref(getCurrentMonthRange())
 
 const newInvoice = ref({
   file: null,
@@ -106,13 +159,24 @@ const currentUser = ref(pb.authStore.model)
 
 // Determine if user can add based on Role (ADMIN)
 const canAdd = computed(() => {
-  return currentUser.value?.expand?.role?.filter(role => role.code === 'ADMIN').length > 0
+  return currentUser.value?.expand?.role?.some(role => role.code === 'ADMIN')
+})
 
-
+// Determine if user can delete (ADMIN or EDITAR)
+const canDelete = computed(() => {
+  return currentUser.value?.expand?.role?.some(role => ['ADMIN', 'EDITAR'].includes(role.code))
 })
 
 const currentMonthLabel = computed(() => {
-  return date.formatDate(selectedDate.value, 'DD MMMM YYYY')
+  if (typeof selectedDate.value === 'string') {
+     return date.formatDate(selectedDate.value, 'DD/MM/YYYY')
+  }
+  if (selectedDate.value && selectedDate.value.from && selectedDate.value.to) {
+    const from = date.formatDate(selectedDate.value.from, 'DD/MM/YYYY')
+    const to = date.formatDate(selectedDate.value.to, 'DD/MM/YYYY')
+    return `${from} - ${to}`
+  }
+  return 'Select Date'
 })
 
 const totalSpend = computed(() => {
@@ -126,18 +190,24 @@ const columns = [
   { name: 'description', label: 'Description', field: 'description', align: 'left' },
   { name: 'amount', label: 'Amount', field: row => row.amount ? `${row.amount.toFixed(2)} €` : '-', align: 'right', sortable: true },
   { name: 'file', label: 'File', field: 'file', align: 'center' },
-  { name: 'uploaded_by', label: 'Uploaded By', field: row => row.expand?.uploaded_by?.name || row.expand?.uploaded_by?.email || 'Unknown', align: 'left' }
+  { name: 'uploaded_by', label: 'Uploaded By', field: row => row.expand?.uploaded_by?.name || row.expand?.uploaded_by?.email || 'Unknown', align: 'left' },
+  { name: 'actions', label: '', field: 'actions', align: 'right' }
 ]
 
 const loadInvoices = async () => {
   loading.value = true
   try {
-    // Filter by specific day
-    // date >= "YYYY-MM-DD 00:00:00" && date <= "YYYY-MM-DD 23:59:59"
-    const startOfDay = `${selectedDate.value} 00:00:00`
-    const endOfDay = `${selectedDate.value} 23:59:59`
+    let filter = ''
     
-    const filter = `date >= "${startOfDay}" && date <= "${endOfDay}"`
+    if (typeof selectedDate.value === 'string') {
+        const startOfDay = `${selectedDate.value} 00:00:00`
+        const endOfDay = `${selectedDate.value} 23:59:59`
+        filter = `date >= "${startOfDay}" && date <= "${endOfDay}"`
+    } else if (selectedDate.value && selectedDate.value.from && selectedDate.value.to) {
+        const startOfDay = `${selectedDate.value.from} 00:00:00`
+        const endOfDay = `${selectedDate.value.to} 23:59:59`
+        filter = `date >= "${startOfDay}" && date <= "${endOfDay}"`
+    }
 
     const records = await pb.collection('invoices').getList(1, 50, {
       filter: filter,
@@ -157,8 +227,54 @@ const onDateChange = () => {
   loadInvoices()
 }
 
+// Monthly Navigation
+const prevMonth = () => {
+  let currentRefDate
+  if (typeof selectedDate.value === 'string') {
+      currentRefDate = new Date(selectedDate.value)
+  } else {
+      currentRefDate = new Date(selectedDate.value.from)
+  }
+  
+  // Go to previous month
+  const prevMonthDate = date.subtractFromDate(currentRefDate, { months: 1 })
+  
+  // Set to full month range
+  const firstDay = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth(), 1)
+  const lastDay = new Date(prevMonthDate.getFullYear(), prevMonthDate.getMonth() + 1, 0)
+  
+  selectedDate.value = {
+    from: date.formatDate(firstDay, 'YYYY-MM-DD'),
+    to: date.formatDate(lastDay, 'YYYY-MM-DD')
+  }
+  loadInvoices()
+}
+
+const nextMonth = () => {
+   let currentRefDate
+  if (typeof selectedDate.value === 'string') {
+      currentRefDate = new Date(selectedDate.value)
+  } else {
+      currentRefDate = new Date(selectedDate.value.from)
+  }
+
+  const nextMonthDate = date.addToDate(currentRefDate, { months: 1 })
+   
+  const firstDay = new Date(nextMonthDate.getFullYear(), nextMonthDate.getMonth(), 1)
+  const lastDay = new Date(nextMonthDate.getFullYear(), nextMonthDate.getMonth() + 1, 0)
+  
+  selectedDate.value = {
+    from: date.formatDate(firstDay, 'YYYY-MM-DD'),
+    to: date.formatDate(lastDay, 'YYYY-MM-DD')
+  }
+  loadInvoices()
+}
+
+
 watch(selectedDate, () => {
-   loadInvoices()
+   // handled by onDateChange or direct calls, but keeping just in case
+   // loadInvoices() 
+   // Commented out to avoid double load if onDateChange is used
 })
 
 const uploadInvoice = async () => {
@@ -190,6 +306,32 @@ const uploadInvoice = async () => {
   } finally {
     uploading.value = false
   }
+}
+
+const deleteInvoice = (id) => {
+  $q.dialog({
+    title: 'Confirm',
+    message: 'Are you sure you want to delete this invoice?',
+    cancel: true,
+    persistent: true
+  }).onOk(async () => {
+    try {
+      await pb.collection('invoices').delete(id)
+      loadInvoices()
+      $q.notify({
+        color: 'positive',
+        message: 'Invoice deleted successfully',
+        icon: 'check'
+      })
+    } catch (e) {
+      console.error('Error deleting invoice', e)
+      $q.notify({
+        color: 'negative',
+        message: 'Failed to delete invoice',
+        icon: 'report_problem'
+      })
+    }
+  })
 }
 
 const getFileUrl = (record) => {
