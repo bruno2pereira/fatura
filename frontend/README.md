@@ -1,4 +1,4 @@
-# Quasar App (frontend)
+# NeonRetreat APP (frontend)
 
 A Quasar Project
 

@@ -1,0 +1,12 @@
+{
+  "name": "fatura-root",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Root scripts for Fatura deployment",
+  "scripts": {
+    "setup:remote": "node backend/setup_pb.js"
+  },
+  "dependencies": {
+    "pocketbase": "^0.26.5"
+  }
+}

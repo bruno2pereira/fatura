@@ -78,7 +78,7 @@ const newInvoice = ref({
 })
 
 const currentUser = pb.authStore.model
-const canAdd = computed(() => currentUser && currentUser.email === 'me@local.host') // Simple check, or check role if implemented
+const canAdd = computed(() => currentUser && currentUser.email === 'bruno.26.6.1993@gmail.com') 
 
 const currentMonthLabel = computed(() => {
   return date.formatDate(selectedMonth.value + '-01', 'MMMM YYYY')
