@@ -171,13 +171,33 @@ const currentMonthLabel = computed(() => {
   if (typeof selectedDate.value === 'string') {
      return date.formatDate(selectedDate.value, 'DD/MM/YYYY')
   }
+
   if (selectedDate.value && selectedDate.value.from && selectedDate.value.to) {
+    const fromDate = new Date(selectedDate.value.from)
+    const toDate = new Date(selectedDate.value.to)
+
+    const isSameYear = fromDate.getFullYear() === toDate.getFullYear()
+    const isSameMonth = fromDate.getMonth() === toDate.getMonth()
+
+    if (isSameYear && isSameMonth) {
+      const startsOnFirst = fromDate.getDate() === 1
+      const lastDayOfMonth = new Date(fromDate.getFullYear(), fromDate.getMonth() + 1, 0).getDate()
+      const endsOnLast = toDate.getDate() === lastDayOfMonth
+
+      if (startsOnFirst && endsOnLast) {
+        const label = fromDate.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' })
+        return label.charAt(0).toUpperCase() + label.slice(1)
+      }
+    }
+
     const from = date.formatDate(selectedDate.value.from, 'DD/MM/YYYY')
     const to = date.formatDate(selectedDate.value.to, 'DD/MM/YYYY')
     return `${from} - ${to}`
   }
   return 'Select Date'
 })
+
+
 
 const totalSpend = computed(() => {
   return invoices.value.reduce((total, invoice) => {
