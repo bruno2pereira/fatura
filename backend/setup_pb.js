@@ -1,4 +1,8 @@
-const baseUrl = 'http://127.0.0.1:8090';
+const args = process.argv.slice(2);
+const baseUrl = args[0] || 'http://127.0.0.1:8090';
+const adminEmail = args[1] || 'admin@local.host';
+const adminPass = args[2] || 'password123';
+
 
 async function main() {
   // 1. Create Admin
@@ -6,7 +10,7 @@ async function main() {
       const res = await fetch(`${baseUrl}/api/admins`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'admin@local.host', password: 'password123', passwordConfirm: 'password123' })
+        body: JSON.stringify({ email: adminEmail, password: adminPass, passwordConfirm: adminPass })
       });
       if (res.ok) console.log('Admin created');
       else console.log('Admin creation skipped/failed', await res.text());
@@ -18,7 +22,7 @@ async function main() {
   const authRes = await fetch(`${baseUrl}/api/admins/auth-with-password`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ identity: 'admin@local.host', password: 'password123' })
+    body: JSON.stringify({ identity: adminEmail, password: adminPass })
   });
   const authData = await authRes.json();
   const token = authData.token;
@@ -57,7 +61,7 @@ async function main() {
   
   // 4. Create Users
   // Me
-  await createUser(token, 'me@local.host', '1234567890', 'Me');
+  await createUser(token, 'bruno.neonretreat@gmail.com', '#', 'Bruno Pereira');
   // Accountant
   await createUser(token, 'accountant@local.host', '1234567890', 'Accountant');
 }
