@@ -3,10 +3,15 @@
     <div class="row items-center q-mb-md">
       <div class="text-h5 q-mr-md">Invoices</div>
       <q-space />
+      
+      <div class="q-mr-md text-subtitle1">
+        Total: <b>{{ totalSpend.toFixed(2) }} €</b>
+      </div>
+
       <div class="q-mr-md">
-        <q-btn flat dense icon="date_range" :label="currentMonthLabel">
+        <q-btn flat dense icon="event" :label="currentMonthLabel">
           <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-            <q-date v-model="selectedMonth" minimal mask="YYYY-MM" emit-immediately @update:model-value="onMonthChange">
+            <q-date v-model="selectedDate" minimal mask="YYYY-MM-DD" emit-immediately @update:model-value="onDateChange">
               <div class="row items-center justify-end">
                 <q-btn v-close-popup label="Close" color="primary" flat />
               </div>
@@ -23,11 +28,30 @@
       :columns="columns"
       row-key="id"
       :loading="loading"
-      no-data-label="No invoices found for this month"
+      no-data-label="No invoices found for this date"
     >
       <template v-slot:body-cell-file="props">
         <q-td :props="props">
-          <q-btn flat round color="primary" icon="description" type="a" :href="getFileUrl(props.row)" target="_blank" />
+          <div v-if="isImage(props.row.file)">
+             <a :href="getFileUrl(props.row)" target="_blank">
+                <q-avatar rounded size="40px">
+                  <q-img :src="getThumbUrl(props.row)" spinner-color="white" />
+                </q-avatar>
+                <q-tooltip>View Image</q-tooltip>
+             </a>
+          </div>
+          <q-btn 
+            v-else
+            flat 
+            round 
+            color="primary" 
+            :icon="getFileIcon(props.row.file)" 
+            type="a" 
+            :href="getFileUrl(props.row)" 
+            target="_blank" 
+          >
+             <q-tooltip>View {{ props.row.file }}</q-tooltip>
+          </q-btn>
         </q-td>
       </template>
     </q-table>
@@ -68,7 +92,8 @@ const invoices = ref([])
 const loading = ref(false)
 const uploading = ref(false)
 const showUploadDialog = ref(false)
-const selectedMonth = ref(date.formatDate(Date.now(), 'YYYY-MM'))
+// Changed to full date for daily filtering
+const selectedDate = ref(date.formatDate(Date.now(), 'YYYY-MM-DD'))
 
 const newInvoice = ref({
   file: null,
@@ -77,11 +102,23 @@ const newInvoice = ref({
   amount: null
 })
 
-const currentUser = pb.authStore.model
-const canAdd = computed(() => currentUser && currentUser.email === 'bruno.26.6.1993@gmail.com') 
+const currentUser = ref(pb.authStore.model)
+
+// Determine if user can add based on Role (ADMIN)
+const canAdd = computed(() => {
+  return currentUser.value?.expand?.role?.filter(role => role.code === 'ADMIN').length > 0
+
+
+})
 
 const currentMonthLabel = computed(() => {
-  return date.formatDate(selectedMonth.value + '-01', 'MMMM YYYY')
+  return date.formatDate(selectedDate.value, 'DD MMMM YYYY')
+})
+
+const totalSpend = computed(() => {
+  return invoices.value.reduce((total, invoice) => {
+    return total + (invoice.amount || 0)
+  }, 0)
 })
 
 const columns = [
@@ -95,22 +132,12 @@ const columns = [
 const loadInvoices = async () => {
   loading.value = true
   try {
-    // Filter by month
-    // PocketBase date filter: "2023-01-01 00:00:00" <= date && date <= "2023-01-31 23:59:59"
-    // Easier: date >= 'YYYY-MM-01' && date <= 'YYYY-MM-31'
-    const startObj = new Date(selectedMonth.value + '-01')
-    // Wait, addToDate(start, {months:1}) -> next month 1st.
-    // To get last day of this month: first day next month minus 1 day.
+    // Filter by specific day
+    // date >= "YYYY-MM-DD 00:00:00" && date <= "YYYY-MM-DD 23:59:59"
+    const startOfDay = `${selectedDate.value} 00:00:00`
+    const endOfDay = `${selectedDate.value} 23:59:59`
     
-    // Using string approach for safety:
-    // '2023-01' -> start '2023-01-01 00:00:00.000Z'
-    // Filter syntax: date >= "2023-01-01 00:00:00" && date <= "2023-01-31 23:59:59"
-    
-    // Let's rely on PB's fuzzy search or simple date string comparison part?
-    // date >= "2023-01-01" && date < "2023-02-01"
-    const nextMonth = date.formatDate(date.addToDate(startObj, { months: 1 }), 'YYYY-MM-01')
-    
-    const filter = `date >= "${selectedMonth.value}-01" && date < "${nextMonth}"`
+    const filter = `date >= "${startOfDay}" && date <= "${endOfDay}"`
 
     const records = await pb.collection('invoices').getList(1, 50, {
       filter: filter,
@@ -126,12 +153,11 @@ const loadInvoices = async () => {
   }
 }
 
-const onMonthChange = () => {
+const onDateChange = () => {
   loadInvoices()
-  // Popup doesn't close auto with q-date in proxy
 }
 
-watch(selectedMonth, () => {
+watch(selectedDate, () => {
    loadInvoices()
 })
 
@@ -144,7 +170,7 @@ const uploadInvoice = async () => {
     formData.append('date', newInvoice.value.date)
     if (newInvoice.value.description) formData.append('description', newInvoice.value.description)
     if (newInvoice.value.amount) formData.append('amount', newInvoice.value.amount)
-    formData.append('uploaded_by', currentUser.id)
+    formData.append('uploaded_by', pb.authStore.model.id)
 
     await pb.collection('invoices').create(formData)
     showUploadDialog.value = false
@@ -170,15 +196,46 @@ const getFileUrl = (record) => {
   return pb.getFileUrl(record, record.file)
 }
 
+const getThumbUrl = (record) => {
+  return pb.getFileUrl(record, record.file, { thumb: '100x100' })
+}
+
+const isImage = (filename) => {
+  if (!filename) return false
+  const ext = filename.split('.').pop().toLowerCase()
+  return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)
+}
+
+const getFileIcon = (filename) => {
+  if (!filename) return 'description'
+  const ext = filename.split('.').pop().toLowerCase()
+  if (['pdf'].includes(ext)) return 'picture_as_pdf'
+  return 'description'
+}
+
 const logout = () => {
   pb.authStore.clear()
   router.push('/login')
+}
+
+const fetchCurrentUser = async () => {
+  if (pb.authStore.isValid && pb.authStore.model) {
+    try {
+      const user = await pb.collection('users').getOne(pb.authStore.model.id, {
+        expand: 'role'
+      })
+      currentUser.value = user
+    } catch (e) {
+      console.error("Error fetching user role", e)
+    }
+  }
 }
 
 onMounted(() => {
   if (!pb.authStore.isValid) {
     router.push('/login')
   } else {
+    fetchCurrentUser()
     loadInvoices()
   }
 })
