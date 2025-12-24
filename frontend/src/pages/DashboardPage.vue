@@ -125,6 +125,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { pb } from 'boot/pocketbase'
+import imageCompression from 'browser-image-compression'
 import { date, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 
@@ -301,8 +302,26 @@ const uploadInvoice = async () => {
   if (!newInvoice.value.file) return
   uploading.value = true
   try {
+    const file = newInvoice.value.file
+    let fileToUpload = file
+
+    // Compress if it's an image
+    if (file && file.type.startsWith('image/')) {
+      try {
+        const options = {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true
+        }
+        fileToUpload = await imageCompression(file, options)
+      } catch (error) {
+        console.error('Compression failed:', error)
+        // Fallback to original file if compression fails
+      }
+    }
+
     const formData = new FormData()
-    formData.append('file', newInvoice.value.file)
+    formData.append('file', fileToUpload)
     formData.append('date', newInvoice.value.date)
     if (newInvoice.value.description) formData.append('description', newInvoice.value.description)
     if (newInvoice.value.amount) formData.append('amount', newInvoice.value.amount)
