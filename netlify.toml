@@ -1,0 +1,21 @@
+[build]
+  command = "quasar build -m pwa"
+  publish = "dist/pwa"
+
+# Redirecionamento para o Router (evita erro 404)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# IMPORTANTE: Desativar cache para o Service Worker
+# Garante que os utilizadores recebam sempre a nova versão da app
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/service-worker.js"
+  [headers.values]
+    Cache-Control = "no-cache"

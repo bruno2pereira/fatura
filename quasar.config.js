@@ -141,6 +141,10 @@ export default defineConfig((/* ctx */) => {
       workboxOptions: {
         skipWaiting: true,
         clientsClaim: true
+      },
+        manifest: {
+        name: 'NeonRetreat',
+        // ...
       }
       // swFilename: 'sw.js',
       // manifestFilename: 'manifest.json',
