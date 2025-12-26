@@ -4,7 +4,7 @@
       <q-page class="flex flex-center bg-grey-2">
         <q-card class="q-pa-md shadow-2 my-card" :style="$q.screen.gt.xs ? 'width: 400px;' : 'width: 90%; max-width: 350px;'">
           <q-card-section class="text-center">
-            <div :class="$q.screen.lt.sm ? 'text-h5' : 'text-h4'" class="text-weight-bold text-primary">Invoice App</div>
+            <div :class="$q.screen.lt.sm ? 'text-h5' : 'text-h4'" class="text-weight-bold text-primary">NeonRetreat</div>
             <div class="text-subtitle2">Faça login para continuar</div>
           </q-card-section>
 

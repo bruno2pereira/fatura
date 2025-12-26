@@ -78,44 +78,61 @@
       :loading="loading"
       no-data-label="Nenhuma fatura encontrada para este período"
     >
-      <template v-slot:body-cell-file="props">
-        <q-td :props="props">
-          <div v-if="isImage(props.row.file)">
-             <a :href="getFileUrl(props.row)" target="_blank">
+      <template v-slot:body="props">
+        <q-tr 
+          :props="props" 
+          class="cursor-pointer" 
+          @click="openFile(props.row)"
+        >
+          <q-td 
+            v-for="col in props.cols" 
+            :key="col.name" 
+            :props="props"
+          >
+            <template v-if="col.name === 'file'">
+              <div v-if="isImage(props.row.file)">
                 <q-avatar rounded size="40px">
                   <q-img :src="getThumbUrl(props.row)" spinner-color="white" />
                 </q-avatar>
-                <q-tooltip>Ver Imagem</q-tooltip>
-             </a>
-          </div>
-          <q-btn 
-            v-else
-            flat 
-            round 
-            color="primary" 
-            :icon="getFileIcon(props.row.file)" 
-            type="a" 
-            :href="getFileUrl(props.row)" 
-            target="_blank" 
-          >
-             <q-tooltip>Ver {{ props.row.file }}</q-tooltip>
-          </q-btn>
-        </q-td>
-      </template>
-
-      <template v-slot:body-cell-actions="props">
-        <q-td :props="props">
-          <q-btn 
-            v-if="canDelete" 
-            flat 
-            round 
-            color="negative" 
-            icon="delete" 
-            @click="deleteInvoice(props.row.id)" 
-          >
-            <q-tooltip>Eliminar</q-tooltip>
-          </q-btn>
-        </q-td>
+              </div>
+              <q-icon 
+                v-else
+                :name="getFileIcon(props.row.file)" 
+                color="primary"
+                size="sm"
+              />
+            </template>
+            <template v-else-if="col.name === 'actions'">
+              <div class="row items-center justify-end q-gutter-xs" @click.stop>
+                <q-btn 
+                  v-if="canEdit" 
+                  flat 
+                  round 
+                  dense
+                  color="primary" 
+                  icon="edit" 
+                  @click.stop="editInvoice(props.row)" 
+                >
+                  <q-tooltip>Editar</q-tooltip>
+                </q-btn>
+                <q-btn 
+                  v-if="canDelete" 
+                  flat 
+                  round 
+                  dense
+                  color="negative" 
+                  icon="delete" 
+                  @click.stop="deleteInvoice(props.row.id)" 
+                >
+                  <q-tooltip>Eliminar</q-tooltip>
+                </q-btn>
+              </div>
+            </template>
+            <template v-else>
+              {{ col.value }}
+            </template>
+          </q-td>
+        </q-tr>
       </template>
     </q-table>
 
@@ -135,29 +152,23 @@
           :key="invoice.id" 
           flat 
           bordered
-          class="q-pa-sm"
+          class="q-pa-sm cursor-pointer"
+          @click="openFile(invoice)"
         >
           <q-card-section class="q-pa-sm">
             <div class="row items-start q-gutter-sm">
               <!-- File Preview -->
               <div class="col-auto">
                 <div v-if="isImage(invoice.file)">
-                  <a :href="getFileUrl(invoice)" target="_blank">
-                    <q-avatar rounded size="60px">
-                      <q-img :src="getThumbUrl(invoice)" spinner-color="white" />
-                    </q-avatar>
-                  </a>
+                  <q-avatar rounded size="60px">
+                    <q-img :src="getThumbUrl(invoice)" spinner-color="white" />
+                  </q-avatar>
                 </div>
-                <q-btn 
+                <q-icon 
                   v-else
-                  flat 
-                  round 
-                  size="lg"
+                  :name="getFileIcon(invoice.file)" 
                   color="primary" 
-                  :icon="getFileIcon(invoice.file)" 
-                  type="a" 
-                  :href="getFileUrl(invoice)" 
-                  target="_blank" 
+                  size="60px"
                 />
               </div>
 
@@ -178,14 +189,26 @@
               </div>
 
               <!-- Actions -->
-              <div class="col-auto" v-if="canDelete">
+              <div class="col-auto row items-center q-gutter-xs" @click.stop>
                 <q-btn 
+                  v-if="canEdit"
+                  flat 
+                  round 
+                  dense
+                  color="primary" 
+                  icon="edit" 
+                  @click.stop="editInvoice(invoice)" 
+                >
+                  <q-tooltip>Editar</q-tooltip>
+                </q-btn>
+                <q-btn 
+                  v-if="canDelete"
                   flat 
                   round 
                   dense
                   color="negative" 
                   icon="delete" 
-                  @click="deleteInvoice(invoice.id)" 
+                  @click.stop="deleteInvoice(invoice.id)" 
                 >
                   <q-tooltip>Eliminar</q-tooltip>
                 </q-btn>
@@ -196,22 +219,39 @@
       </div>
     </div>
 
-    <!-- Upload Dialog -->
-    <q-dialog v-model="showUploadDialog" :maximized="$q.screen.lt.md">
+    <!-- Upload/Edit Dialog -->
+    <q-dialog v-model="showUploadDialog" :maximized="$q.screen.lt.md" @hide="resetForm">
       <q-card :style="$q.screen.gt.sm ? 'min-width: 400px' : ''">
         <q-card-section>
-          <div class="text-h6">Upload de Fatura</div>
+          <div class="text-h6">{{ editingInvoiceId ? 'Editar Fatura' : 'Upload de Fatura' }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
           <q-form @submit="uploadInvoice" class="q-gutter-md">
+            <!-- Show current file info when editing -->
+            <div v-if="editingInvoiceId && currentFileName" class="q-mb-sm">
+              <div class="text-caption text-grey-7">Ficheiro atual:</div>
+              <div class="row items-center q-gutter-xs q-mt-xs">
+                <q-icon :name="getFileIcon(currentFileName)" color="primary" size="sm" />
+                <span class="text-body2">{{ currentFileName }}</span>
+              </div>
+              <div class="text-caption text-grey-6 q-mt-xs">
+                Deixe em branco para manter o ficheiro atual
+              </div>
+            </div>
+
             <q-file 
               v-model="newInvoice.file" 
-              label="Ficheiro da Fatura" 
+              :label="editingInvoiceId ? 'Substituir Ficheiro (opcional)' : 'Ficheiro da Fatura'" 
               filled 
               accept=".pdf,.png,.jpg,.jpeg" 
-              :rules="[val => !!val || 'Ficheiro é obrigatório']" 
-            />
+              :rules="editingInvoiceId ? [] : [val => !!val || 'Ficheiro é obrigatório']"
+              clearable
+            >
+              <template v-slot:hint v-if="editingInvoiceId">
+                Opcional - selecione apenas se quiser substituir o ficheiro
+              </template>
+            </q-file>
             <q-input 
               v-model="newInvoice.date" 
               filled 
@@ -233,8 +273,13 @@
             />
             
             <div class="row justify-end q-gutter-sm">
-              <q-btn flat label="Cancelar" v-close-popup />
-              <q-btn label="Enviar" type="submit" color="primary" :loading="uploading" />
+              <q-btn flat label="Cancelar" v-close-popup @click="resetForm" />
+              <q-btn 
+                :label="editingInvoiceId ? 'Guardar' : 'Enviar'" 
+                type="submit" 
+                color="primary" 
+                :loading="uploading" 
+              />
             </div>
           </q-form>
         </q-card-section>
@@ -256,6 +301,8 @@ const invoices = ref([])
 const loading = ref(false)
 const uploading = ref(false)
 const showUploadDialog = ref(false)
+const editingInvoiceId = ref(null)
+const currentFileName = ref(null)
 
 // Function to get current month range
 const getCurrentMonthRange = () => {
@@ -286,6 +333,11 @@ const canAdd = computed(() => {
 
 // Determine if user can delete (ADMIN or EDITAR)
 const canDelete = computed(() => {
+  return currentUser.value?.expand?.role?.some(role => ['ADMIN', 'EDITAR'].includes(role.code))
+})
+
+// Determine if user can edit (ADMIN or EDITAR)
+const canEdit = computed(() => {
   return currentUser.value?.expand?.role?.some(role => ['ADMIN', 'EDITAR'].includes(role.code))
 })
 
@@ -420,52 +472,88 @@ watch(selectedDate, () => {
 })
 
 const uploadInvoice = async () => {
-  if (!newInvoice.value.file) return
+  // When creating, file is required. When editing, it's optional
+  if (!editingInvoiceId.value && !newInvoice.value.file) {
+    return
+  }
+  
   uploading.value = true
   try {
-    const file = newInvoice.value.file
-    let fileToUpload = file
-
-    // Compress if it's an image
-    if (file && file.type.startsWith('image/')) {
-      try {
-        const options = {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
-          useWebWorker: true
-        }
-        fileToUpload = await imageCompression(file, options)
-      } catch (error) {
-        console.error('Compression failed:', error)
-        // Fallback to original file if compression fails
-      }
-    }
-
     const formData = new FormData()
-    formData.append('file', fileToUpload)
+    
+    // Only process and add file if one was selected
+    if (newInvoice.value.file) {
+      const file = newInvoice.value.file
+      let fileToUpload = file
+
+      // Compress if it's an image
+      if (file && file.type.startsWith('image/')) {
+        try {
+          const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1920,
+            useWebWorker: true
+          }
+          fileToUpload = await imageCompression(file, options)
+        } catch (error) {
+          console.error('Compression failed:', error)
+          // Fallback to original file if compression fails
+        }
+      }
+      
+      formData.append('file', fileToUpload)
+    }
+    
+    // Always add other fields
     formData.append('date', newInvoice.value.date)
     if (newInvoice.value.description) formData.append('description', newInvoice.value.description)
     if (newInvoice.value.amount) formData.append('amount', newInvoice.value.amount)
-    formData.append('uploaded_by', pb.authStore.model.id)
-
-    await pb.collection('invoices').create(formData)
-    showUploadDialog.value = false
     
-    // Reset form
-    newInvoice.value = {
-      file: null,
-      date: date.formatDate(Date.now(), 'YYYY-MM-DD'),
-      description: '',
-      amount: null
+    // Check if we're editing or creating
+    if (editingInvoiceId.value) {
+      // Update existing invoice
+      await pb.collection('invoices').update(editingInvoiceId.value, formData)
+      $q.notify({
+        color: 'positive',
+        message: 'Fatura atualizada com sucesso',
+        icon: 'check'
+      })
+    } else {
+      // Create new invoice
+      formData.append('uploaded_by', pb.authStore.model.id)
+      await pb.collection('invoices').create(formData)
+      $q.notify({
+        color: 'positive',
+        message: 'Fatura criada com sucesso',
+        icon: 'check'
+      })
     }
     
+    showUploadDialog.value = false
+    resetForm()
     loadInvoices()
   } catch (e) {
-    console.error('Upload failed', e)
-    alert('Upload falhou: ' + e.message)
+    console.error('Operation failed', e)
+    $q.notify({
+      color: 'negative',
+      message: editingInvoiceId.value ? 'Falha ao atualizar fatura' : 'Falha ao criar fatura',
+      icon: 'report_problem',
+      caption: e.message
+    })
   } finally {
     uploading.value = false
   }
+}
+
+const resetForm = () => {
+  newInvoice.value = {
+    file: null,
+    date: date.formatDate(Date.now(), 'YYYY-MM-DD'),
+    description: '',
+    amount: null
+  }
+  editingInvoiceId.value = null
+  currentFileName.value = null
 }
 
 const deleteInvoice = (id) => {
@@ -492,6 +580,28 @@ const deleteInvoice = (id) => {
       })
     }
   })
+}
+
+const openFile = (invoice) => {
+  const url = getFileUrl(invoice)
+  window.open(url, '_blank')
+}
+
+const editInvoice = (invoice) => {
+  // Populate the form with the invoice data
+  newInvoice.value = {
+    file: null, // File can't be pre-populated
+    date: date.formatDate(invoice.date, 'YYYY-MM-DD'),
+    description: invoice.description || '',
+    amount: invoice.amount || null
+  }
+  
+  // Store the invoice ID and current file name
+  editingInvoiceId.value = invoice.id
+  currentFileName.value = invoice.file
+  
+  // Show the dialog
+  showUploadDialog.value = true
 }
 
 const getFileUrl = (record) => {
@@ -542,3 +652,17 @@ onMounted(() => {
   }
 })
 </script>
+
+<style scoped>
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.cursor-pointer:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.q-table tbody tr.cursor-pointer:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+</style>
