@@ -111,6 +111,14 @@ Crie uma nova coleção chamada `document_categories` com os seguintes campos:
 - Pattern: ^(blue|green|red|orange|purple|pink|amber|grey)$
 - Descrição: Cor do badge (blue, green, red, orange, purple, pink, amber, grey)
 
+**parent** (Relation)
+- Tipo: Relation
+- Collection: document_categories
+- Max select: 1
+- Cascade delete: false (Set null)
+- Required: Não
+- Descrição: Categoria pai para estrutura em árvore (pastas)
+
 #### Regras de Acesso (API Rules):
 
 - **List/View**: `@request.auth.expand.role.code ?= "ADMIN"`
