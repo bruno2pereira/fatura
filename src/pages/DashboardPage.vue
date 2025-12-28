@@ -423,7 +423,6 @@
                   type="submit" 
                   color="primary" 
                   icon="add" 
-                  label="Adicionar"
                   :loading="addingInvoiceType"
                   class="full-width"
                 />

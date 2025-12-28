@@ -371,7 +371,6 @@
                   type="submit" 
                   color="secondary" 
                   icon="add" 
-                  label="Adicionar"
                   :loading="addingCategory"
                   class="full-width"
                 />
