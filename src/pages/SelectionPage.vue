@@ -1,0 +1,147 @@
+<template>
+  <q-page class="flex flex-center bg-gradient">
+    <div class="selection-container">
+      <div class="text-center q-mb-xl">
+        <h3 class="text-h3 text-weight-bold text-white q-mb-md">Bem-vindo!</h3>
+        <p class="text-h6 text-white-7">Escolha a área que deseja aceder</p>
+      </div>
+
+      <div class="row q-col-gutter-lg justify-center">
+        <!-- Invoices Card -->
+        <div class="col-12 col-sm-6 col-md-5">
+          <q-card 
+            class="selection-card cursor-pointer" 
+            @click="goToInvoices"
+          >
+            <q-card-section class="text-center q-pa-xl">
+              <q-icon name="receipt_long" size="80px" color="primary" class="q-mb-md" />
+              <div class="text-h5 text-weight-bold q-mb-sm">Invoices</div>
+              <p class="text-grey-7">
+                Gerir faturas, adicionar novos documentos e acompanhar despesas
+              </p>
+            </q-card-section>
+            <q-card-section class="bg-grey-1">
+              <div class="row items-center justify-center">
+                <q-icon name="arrow_forward" color="primary" />
+                <span class="q-ml-sm text-primary text-weight-medium">Aceder</span>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Documents Card -->
+        <div class="col-12 col-sm-6 col-md-5" v-if="isAdmin">
+          <q-card 
+            class="selection-card cursor-pointer" 
+            @click="goToDocuments"
+          >
+            <q-card-section class="text-center q-pa-xl">
+              <q-icon name="folder_open" size="80px" color="secondary" class="q-mb-md" />
+              <div class="text-h5 text-weight-bold q-mb-sm">Documentos</div>
+              <p class="text-grey-7">
+                Organizar documentos da empresa por categorias
+              </p>
+              <q-badge color="orange" class="q-mt-sm">Admin Only</q-badge>
+            </q-card-section>
+            <q-card-section class="bg-grey-1">
+              <div class="row items-center justify-center">
+                <q-icon name="arrow_forward" color="secondary" />
+                <span class="q-ml-sm text-secondary text-weight-medium">Aceder</span>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- Logout Button -->
+      <div class="text-center q-mt-xl">
+        <q-btn 
+          flat 
+          color="white" 
+          icon="logout" 
+          label="Sair" 
+          @click="logout"
+        />
+      </div>
+    </div>
+  </q-page>
+</template>
+
+<script setup>
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { pb } from 'boot/pocketbase'
+
+const router = useRouter()
+const currentUser = ref(pb.authStore.model)
+
+const isAdmin = computed(() => {
+  return currentUser.value?.expand?.role?.some(role => role.code === 'ADMIN')
+})
+
+const goToInvoices = () => {
+  router.push('/invoices')
+}
+
+const goToDocuments = () => {
+  router.push('/documents')
+}
+
+const logout = () => {
+  pb.authStore.clear()
+  router.push('/login')
+}
+
+const fetchCurrentUser = async () => {
+  if (pb.authStore.isValid && pb.authStore.model) {
+    try {
+      const user = await pb.collection('users').getOne(pb.authStore.model.id, {
+        expand: 'role'
+      })
+      currentUser.value = user
+    } catch (e) {
+      console.error("Error fetching user role", e)
+    }
+  }
+}
+
+onMounted(() => {
+  if (!pb.authStore.isValid) {
+    router.push('/login')
+  } else {
+    fetchCurrentUser()
+  }
+})
+</script>
+
+<style scoped>
+.bg-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+}
+
+.selection-container {
+  width: 100%;
+  max-width: 1000px;
+  padding: 2rem;
+}
+
+.selection-card {
+  transition: all 0.3s ease;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.selection-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.text-white-7 {
+  color: rgba(255, 255, 255, 0.7);
+}
+</style>

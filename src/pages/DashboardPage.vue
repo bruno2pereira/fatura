@@ -18,6 +18,24 @@
 
       <div class="col-12 col-md"></div>
       
+      <!-- Filtro de Categoria -->
+      <div class="col-12 col-md-auto">
+        <q-select
+          v-model="selectedInvoiceCategory"
+          :options="invoiceCategoryOptions"
+          label="Filtrar por Tipo"
+          filled
+          dense
+          clearable
+          @update:model-value="loadInvoices"
+          style="min-width: 200px"
+        >
+          <template v-slot:prepend>
+            <q-icon name="filter_list" />
+          </template>
+        </q-select>
+      </div>
+      
       <!-- Navegação de Data -->
       <div class="col-12 col-md-auto">
         <div class="row items-center justify-center bg-grey-2 rounded-borders q-pa-xs">
@@ -59,12 +77,27 @@
           >
             <q-tooltip v-if="$q.screen.xs">Upload Invoice</q-tooltip>
           </q-btn>
+          <q-btn 
+            v-if="canAdd"
+            unelevated 
+            color="secondary" 
+            icon="category" 
+            :label="$q.screen.gt.xs ? 'Tipos' : undefined"
+            @click="showCategoriesDialog = true" 
+            class="full-width-xs"
+          >
+            <q-tooltip v-if="$q.screen.xs">Gerir Tipos</q-tooltip>
+          </q-btn>
+          <q-btn flat round color="grey-7" icon="arrow_back" @click="goBack">
+            <q-tooltip>Voltar</q-tooltip>
+          </q-btn>
           <q-btn flat round color="grey-7" icon="logout" @click="logout">
             <q-tooltip>Logout</q-tooltip>
           </q-btn>
         </div>
       </div>
     </div>
+
   </q-card-section>
 </q-card>
 
@@ -101,6 +134,25 @@
                 color="primary"
                 size="sm"
               />
+            </template>
+            <template v-else-if="col.name === 'category'">
+              <q-badge 
+                v-if="props.row.expand?.invoice_type"
+                :color="props.row.expand.invoice_type.color || 'grey'" 
+                :label="props.row.expand.invoice_type.name"
+              />
+              <span v-else class="text-grey-6">-</span>
+            </template>
+            <template v-else-if="col.name === 'is_document'">
+              <q-icon 
+                v-if="props.row.is_document" 
+                name="check_circle" 
+                color="green" 
+                size="sm"
+              >
+                <q-tooltip>Está nos documentos</q-tooltip>
+              </q-icon>
+              <span v-else class="text-grey-6">-</span>
             </template>
             <template v-else-if="col.name === 'actions'">
               <div class="row items-center justify-end q-gutter-xs" @click.stop>
@@ -271,6 +323,44 @@
               type="number" 
               step="0.01" 
             />
+
+            <q-select
+              v-model="newInvoice.invoice_type"
+              :options="invoiceTypes"
+              option-value="id"
+              option-label="name"
+              label="Tipo de Fatura"
+              filled
+              clearable
+              emit-value
+              map-options
+            >
+              <template v-slot:option="scope">
+                <q-item v-bind="scope.itemProps">
+                  <q-item-section avatar>
+                    <q-icon name="circle" :color="scope.opt.color" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label>{{ scope.opt.name }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </template>
+              <template v-slot:selected-item="scope">
+                <q-chip 
+                  :color="scope.opt?.color || 'grey'" 
+                  text-color="white"
+                  dense
+                >
+                  {{ scope.opt?.name || 'Selecionar' }}
+                </q-chip>
+              </template>
+            </q-select>
+
+            <q-checkbox 
+              v-model="newInvoice.is_document" 
+              label="Marcar como documento da empresa"
+              color="secondary"
+            />
             
             <div class="row justify-end q-gutter-sm">
               <q-btn flat label="Cancelar" v-close-popup @click="resetForm" />
@@ -283,6 +373,100 @@
             </div>
           </q-form>
         </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <!-- Invoice Types Management Dialog -->
+    <q-dialog v-model="showCategoriesDialog" :maximized="$q.screen.lt.md">
+      <q-card :style="$q.screen.gt.sm ? 'min-width: 500px' : ''">
+        <q-card-section>
+          <div class="text-h6">Gerir Tipos de Fatura</div>
+        </q-card-section>
+
+        <q-card-section class="q-pt-none">
+          <!-- Add New Type -->
+          <q-form @submit="addInvoiceType" class="q-gutter-sm q-mb-md">
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-sm-6">
+                <q-input 
+                  v-model="newInvoiceType.name" 
+                  filled 
+                  dense
+                  label="Nome do Tipo" 
+                  placeholder="Ex: Alimentação"
+                />
+              </div>
+              <div class="col-12 col-sm-4">
+                <q-select
+                  v-model="newInvoiceType.color"
+                  :options="colorOptions"
+                  label="Cor"
+                  filled
+                  dense
+                  emit-value
+                  map-options
+                >
+                  <template v-slot:option="scope">
+                    <q-item v-bind="scope.itemProps">
+                      <q-item-section avatar>
+                        <q-icon name="circle" :color="scope.opt.value" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label>{{ scope.opt.label }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
+              </div>
+              <div class="col-12 col-sm-2">
+                <q-btn 
+                  type="submit" 
+                  color="primary" 
+                  icon="add" 
+                  label="Adicionar"
+                  :loading="addingInvoiceType"
+                  class="full-width"
+                />
+              </div>
+            </div>
+          </q-form>
+
+          <q-separator class="q-my-md" />
+
+          <!-- Types List -->
+          <div class="text-subtitle2 q-mb-sm">Tipos Existentes</div>
+          <q-list bordered separator>
+            <q-item v-for="type in invoiceTypes" :key="type.id">
+              <q-item-section avatar>
+                <q-icon name="circle" :color="type.color" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ type.name }}</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <q-btn 
+                  flat 
+                  round 
+                  dense 
+                  color="negative" 
+                  icon="delete" 
+                  @click="deleteInvoiceType(type.id)"
+                >
+                  <q-tooltip>Eliminar</q-tooltip>
+                </q-btn>
+              </q-item-section>
+            </q-item>
+            <q-item v-if="invoiceTypes.length === 0">
+              <q-item-section class="text-grey-6 text-center">
+                Nenhum tipo criado
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Fechar" color="primary" v-close-popup />
+        </q-card-actions>
       </q-card>
     </q-dialog>
   </q-page>
@@ -298,11 +482,15 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const $q = useQuasar()
 const invoices = ref([])
+const invoiceTypes = ref([])
 const loading = ref(false)
 const uploading = ref(false)
+const addingInvoiceType = ref(false)
 const showUploadDialog = ref(false)
+const showCategoriesDialog = ref(false)
 const editingInvoiceId = ref(null)
 const currentFileName = ref(null)
+const selectedInvoiceCategory = ref(null)
 
 // Function to get current month range
 const getCurrentMonthRange = () => {
@@ -321,7 +509,32 @@ const newInvoice = ref({
   file: null,
   date: date.formatDate(Date.now(), 'YYYY-MM-DD'),
   description: '',
-  amount: null
+  amount: null,
+  invoice_type: null,
+  is_document: false
+})
+
+const newInvoiceType = ref({
+  name: '',
+  color: 'blue'
+})
+
+const colorOptions = [
+  { label: 'Azul', value: 'blue' },
+  { label: 'Verde', value: 'green' },
+  { label: 'Vermelho', value: 'red' },
+  { label: 'Laranja', value: 'orange' },
+  { label: 'Roxo', value: 'purple' },
+  { label: 'Rosa', value: 'pink' },
+  { label: 'Amarelo', value: 'amber' },
+  { label: 'Cinza', value: 'grey' }
+]
+
+const invoiceCategoryOptions = computed(() => {
+  return [
+    { label: 'Todos', value: null },
+    ...invoiceTypes.value.map(type => ({ label: type.name, value: type.id }))
+  ]
 })
 
 const currentUser = ref(pb.authStore.model)
@@ -382,31 +595,50 @@ const totalSpend = computed(() => {
 const columns = [
   { name: 'date', label: 'Date', field: row => date.formatDate(row.date, 'DD/MM/YYYY'), align: 'left', sortable: true },
   { name: 'description', label: 'Description', field: 'description', align: 'left' },
+  { name: 'category', label: 'Tipo', field: 'category', align: 'left' },
   { name: 'amount', label: 'Amount', field: row => row.amount ? `${row.amount.toFixed(2)} €` : '-', align: 'right', sortable: true },
   { name: 'file', label: 'File', field: 'file', align: 'center' },
+  { name: 'is_document', label: 'Doc', field: 'is_document', align: 'center' },
   { name: 'uploaded_by', label: 'Uploaded By', field: row => row.expand?.uploaded_by?.name || row.expand?.uploaded_by?.email || 'Unknown', align: 'left' },
   { name: 'actions', label: '', field: 'actions', align: 'right' }
 ]
 
+const loadInvoiceTypes = async () => {
+  try {
+    const records = await pb.collection('invoice_types').getList(1, 50, {
+      sort: 'name'
+    })
+    invoiceTypes.value = records.items
+  } catch (e) {
+    console.error('Error loading invoice types', e)
+  }
+}
+
 const loadInvoices = async () => {
   loading.value = true
   try {
-    let filter = ''
+    let filters = []
     
     if (typeof selectedDate.value === 'string') {
         const startOfDay = `${selectedDate.value} 00:00:00`
         const endOfDay = `${selectedDate.value} 23:59:59`
-        filter = `date >= "${startOfDay}" && date <= "${endOfDay}"`
+        filters.push(`date >= "${startOfDay}" && date <= "${endOfDay}"`)
     } else if (selectedDate.value && selectedDate.value.from && selectedDate.value.to) {
         const startOfDay = `${selectedDate.value.from} 00:00:00`
         const endOfDay = `${selectedDate.value.to} 23:59:59`
-        filter = `date >= "${startOfDay}" && date <= "${endOfDay}"`
+        filters.push(`date >= "${startOfDay}" && date <= "${endOfDay}"`)
     }
+
+    if (selectedInvoiceCategory.value) {
+      filters.push(`invoice_type = "${selectedInvoiceCategory.value}"`)
+    }
+
+    const filter = filters.length > 0 ? filters.join(' && ') : ''
 
     const records = await pb.collection('invoices').getList(1, 50, {
       filter: filter,
       sort: '-date',
-      expand: 'uploaded_by'
+      expand: 'uploaded_by,invoice_type'
     })
     invoices.value = records.items
   } catch (e) {
@@ -508,6 +740,8 @@ const uploadInvoice = async () => {
     formData.append('date', newInvoice.value.date)
     if (newInvoice.value.description) formData.append('description', newInvoice.value.description)
     if (newInvoice.value.amount) formData.append('amount', newInvoice.value.amount)
+    if (newInvoice.value.invoice_type) formData.append('invoice_type', newInvoice.value.invoice_type)
+    formData.append('is_document', newInvoice.value.is_document)
     
     // Check if we're editing or creating
     if (editingInvoiceId.value) {
@@ -550,7 +784,9 @@ const resetForm = () => {
     file: null,
     date: date.formatDate(Date.now(), 'YYYY-MM-DD'),
     description: '',
-    amount: null
+    amount: null,
+    invoice_type: null,
+    is_document: false
   }
   editingInvoiceId.value = null
   currentFileName.value = null
@@ -593,7 +829,9 @@ const editInvoice = (invoice) => {
     file: null, // File can't be pre-populated
     date: date.formatDate(invoice.date, 'YYYY-MM-DD'),
     description: invoice.description || '',
-    amount: invoice.amount || null
+    amount: invoice.amount || null,
+    invoice_type: invoice.invoice_type || null,
+    is_document: invoice.is_document || false
   }
   
   // Store the invoice ID and current file name
@@ -625,9 +863,64 @@ const getFileIcon = (filename) => {
   return 'description'
 }
 
+const goBack = () => {
+  router.push('/')
+}
+
 const logout = () => {
   pb.authStore.clear()
   router.push('/login')
+}
+
+const addInvoiceType = async () => {
+  if (!newInvoiceType.value.name) return
+  
+  addingInvoiceType.value = true
+  try {
+    await pb.collection('invoice_types').create(newInvoiceType.value)
+    $q.notify({
+      color: 'positive',
+      message: 'Tipo criado com sucesso',
+      icon: 'check'
+    })
+    newInvoiceType.value = { name: '', color: 'blue' }
+    loadInvoiceTypes()
+  } catch (e) {
+    console.error('Error creating invoice type', e)
+    $q.notify({
+      color: 'negative',
+      message: 'Falha ao criar tipo',
+      icon: 'report_problem'
+    })
+  } finally {
+    addingInvoiceType.value = false
+  }
+}
+
+const deleteInvoiceType = (id) => {
+  $q.dialog({
+    title: 'Confirmar',
+    message: 'Tem a certeza que deseja eliminar este tipo?',
+    cancel: true,
+    persistent: true
+  }).onOk(async () => {
+    try {
+      await pb.collection('invoice_types').delete(id)
+      loadInvoiceTypes()
+      $q.notify({
+        color: 'positive',
+        message: 'Tipo eliminado com sucesso',
+        icon: 'check'
+      })
+    } catch (e) {
+      console.error('Error deleting invoice type', e)
+      $q.notify({
+        color: 'negative',
+        message: 'Falha ao eliminar tipo',
+        icon: 'report_problem'
+      })
+    }
+  })
 }
 
 const fetchCurrentUser = async () => {
@@ -643,12 +936,13 @@ const fetchCurrentUser = async () => {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   if (!pb.authStore.isValid) {
     router.push('/login')
   } else {
-    fetchCurrentUser()
-    loadInvoices()
+    await fetchCurrentUser()
+    await loadInvoiceTypes()
+    await loadInvoices()
   }
 })
 </script>
