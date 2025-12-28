@@ -86,6 +86,7 @@
           :props="props" 
           class="cursor-pointer" 
           @click="openFile(props.row)"
+          :class="{ 'bg-blue-1': props.row.type === 'invoice' }"
         >
           <q-td 
             v-for="col in props.cols" 
@@ -101,20 +102,23 @@
               <q-icon 
                 v-else
                 :name="getFileIcon(props.row.file)" 
-                color="secondary"
+                :color="props.row.type === 'invoice' ? 'primary' : 'secondary'"
                 size="sm"
               />
             </template>
             <template v-else-if="col.name === 'category'">
-              <q-badge 
-                v-if="props.row.expand?.category"
-                :color="props.row.expand.category.color || 'grey'" 
-                :label="props.row.expand.category.name"
-              />
-              <span v-else class="text-grey-6">Sem categoria</span>
+              <div class="row items-center q-gutter-x-xs">
+                <q-badge 
+                  v-if="props.row.expand?.category"
+                  :color="props.row.expand.category.color || 'grey'" 
+                  :label="props.row.expand.category.name"
+                />
+                <span v-else class="text-grey-6">Sem categoria</span>
+                <q-badge v-if="props.row.type === 'invoice'" color="primary" label="Fatura" outline />
+              </div>
             </template>
             <template v-else-if="col.name === 'actions'">
-              <div class="row items-center justify-end q-gutter-xs" @click.stop>
+              <div class="row items-center justify-end q-gutter-xs" @click.stop v-if="props.row.type === 'document'">
                 <q-btn 
                   flat 
                   round 
@@ -131,10 +135,13 @@
                   dense
                   color="negative" 
                   icon="delete" 
-                  @click.stop="deleteDocument(props.row.id)" 
+                  @click.stop="deleteDocument(props.row)" 
                 >
                   <q-tooltip>Eliminar</q-tooltip>
                 </q-btn>
+              </div>
+              <div v-else class="text-caption text-grey-6">
+                Gerir em Invoices
               </div>
             </template>
             <template v-else>
@@ -189,13 +196,14 @@
                 <div class="text-caption text-grey-7 q-mt-xs">
                   {{ doc.description || 'Sem descrição' }}
                 </div>
-                <div class="q-mt-xs">
+                <div class="q-mt-xs row items-center q-gutter-x-xs">
                   <q-badge 
                     v-if="doc.expand?.category"
                     :color="doc.expand.category.color || 'grey'" 
                     :label="doc.expand.category.name"
                   />
                   <span v-else class="text-caption text-grey-6">Sem categoria</span>
+                  <q-badge v-if="doc.type === 'invoice'" color="primary" label="Fatura" outline />
                 </div>
                 <div class="text-caption text-grey-6 q-mt-xs">
                   {{ date.formatDate(doc.created, 'DD/MM/YYYY HH:mm') }}
@@ -203,7 +211,7 @@
               </div>
 
               <!-- Actions -->
-              <div class="col-auto row items-center q-gutter-xs" @click.stop>
+              <div class="col-auto row items-center q-gutter-xs" @click.stop v-if="doc.type === 'document'">
                 <q-btn 
                   flat 
                   round 
@@ -220,7 +228,7 @@
                   dense
                   color="negative" 
                   icon="delete" 
-                  @click.stop="deleteDocument(doc.id)" 
+                  @click.stop="deleteDocument(doc)" 
                 >
                   <q-tooltip>Eliminar</q-tooltip>
                 </q-btn>
@@ -494,17 +502,61 @@ const loadCategories = async () => {
 const loadDocuments = async () => {
   loading.value = true
   try {
-    let filter = ''
+    // 1. Fetch Documents from 'documents' collection
+    let docFilter = ''
     if (selectedCategory.value) {
-      filter = `category = "${selectedCategory.value}"`
+      docFilter = `category = "${selectedCategory.value}"`
     }
 
-    const records = await pb.collection('documents').getList(1, 100, {
-      filter: filter,
+    const docRecords = await pb.collection('documents').getList(1, 100, {
+      filter: docFilter,
       sort: '-created',
       expand: 'category'
     })
-    documents.value = records.items
+
+    const normalizedDocs = docRecords.items.map(doc => ({
+      ...doc,
+      type: 'document'
+    }))
+
+    // 2. Fetch Invoices marked as 'is_document'
+    const invRecords = await pb.collection('invoices').getList(1, 100, {
+      filter: 'is_document = true',
+      sort: '-created',
+      expand: 'invoice_type'
+    })
+
+    let filteredInvoices = invRecords.items
+    
+    // If a category filter is active, only show invoices whose type name matches the category name
+    if (selectedCategory.value) {
+      const selectedCatName = categories.value.find(c => c.id === selectedCategory.value)?.name
+      if (selectedCatName) {
+        filteredInvoices = filteredInvoices.filter(inv => 
+          inv.expand?.invoice_type?.name === selectedCatName
+        )
+      } else {
+        filteredInvoices = []
+      }
+    }
+
+    const normalizedInvoices = filteredInvoices.map(inv => ({
+      ...inv,
+      type: 'invoice',
+      title: inv.description || 'Fatura',
+      description: `Valor: ${inv.amount?.toFixed(2)}€ - Data: ${date.formatDate(inv.date, 'DD/MM/YYYY')}`,
+      expand: {
+        category: inv.expand?.invoice_type ? {
+          name: inv.expand.invoice_type.name,
+          color: inv.expand.invoice_type.color
+        } : null
+      }
+    }))
+
+    // 3. Combine and sort
+    documents.value = [...normalizedDocs, ...normalizedInvoices].sort((a, b) => 
+      new Date(b.created) - new Date(a.created)
+    )
   } catch (e) {
     console.error('Error loading documents', e)
     if (e.status === 401) router.push('/login')
@@ -602,26 +654,27 @@ const editDocument = (doc) => {
   showUploadDialog.value = true
 }
 
-const deleteDocument = (id) => {
+const deleteDocument = (doc) => {
   $q.dialog({
     title: 'Confirmar',
-    message: 'Tem a certeza que deseja eliminar este documento?',
+    message: `Tem a certeza que deseja eliminar este ${doc.type === 'invoice' ? 'fatura' : 'documento'}?`,
     cancel: true,
     persistent: true
   }).onOk(async () => {
     try {
-      await pb.collection('documents').delete(id)
+      const collection = doc.type === 'invoice' ? 'invoices' : 'documents'
+      await pb.collection(collection).delete(doc.id)
       loadDocuments()
       $q.notify({
         color: 'positive',
-        message: 'Documento eliminado com sucesso',
+        message: 'Eliminado com sucesso',
         icon: 'check'
       })
     } catch (e) {
-      console.error('Error deleting document', e)
+      console.error('Error deleting', e)
       $q.notify({
         color: 'negative',
-        message: 'Falha ao eliminar documento',
+        message: 'Falha ao eliminar',
         icon: 'report_problem'
       })
     }
