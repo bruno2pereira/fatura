@@ -10,12 +10,29 @@
                 Documentos
               </div>
               <q-chip outline color="secondary" icon="folder" class="text-weight-bold">
-                Total: {{ documents.length }}
+                Total: {{ filteredDocuments.length }}
               </q-chip>
             </div>
           </div>
 
           <div class="col-12 col-md"></div>
+
+          <!-- Procura por Nome -->
+          <div class="col-12 col-md-auto">
+            <q-input
+              v-model="searchQuery"
+              label="Procurar documento"
+              filled
+              dense
+              clearable
+              style="min-width: 250px"
+              class="bg-white"
+            >
+              <template v-slot:prepend>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </div>
 
           <!-- Filtro de Categoria -->
           <div class="col-12 col-md-auto">
@@ -75,7 +92,7 @@
     <!-- Tabela para Desktop -->
     <q-table
       v-if="$q.screen.gt.sm"
-      :rows="documents"
+      :rows="filteredDocuments"
       :columns="columns"
       row-key="id"
       :loading="loading"
@@ -158,13 +175,13 @@
         <q-spinner color="secondary" size="3em" />
       </div>
       
-      <div v-else-if="documents.length === 0" class="text-center q-pa-md text-grey-6">
+      <div v-else-if="filteredDocuments.length === 0" class="text-center q-pa-md text-grey-6">
         Nenhum documento encontrado
       </div>
 
       <div v-else class="q-gutter-sm">
         <q-card 
-          v-for="doc in documents" 
+          v-for="doc in filteredDocuments" 
           :key="doc.id" 
           flat 
           bordered
@@ -448,6 +465,7 @@ const showCategoriesDialog = ref(false)
 const editingDocumentId = ref(null)
 const currentFileName = ref(null)
 const selectedCategory = ref(null)
+const searchQuery = ref('')
 
 const newDocument = ref({
   title: '',
@@ -477,6 +495,17 @@ const categoryOptions = computed(() => {
     { label: 'Todas', value: null },
     ...categories.value.map(cat => ({ label: cat.name, value: cat.id }))
   ]
+})
+
+const filteredDocuments = computed(() => {
+  if (!searchQuery.value) return documents.value
+  
+  const query = searchQuery.value.toLowerCase()
+  return documents.value.filter(doc => 
+    (doc.title && doc.title.toLowerCase().includes(query)) ||
+    (doc.description && doc.description.toLowerCase().includes(query)) ||
+    (doc.expand?.category?.name && doc.expand.category.name.toLowerCase().includes(query))
+  )
 })
 
 const columns = [
