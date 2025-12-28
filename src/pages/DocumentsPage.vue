@@ -35,19 +35,31 @@
 
           <!-- Procura -->
           <div class="col-12 col-md-auto">
-            <q-input
-              v-model="searchQuery"
-              label="Procurar em tudo"
-              filled
-              dense
-              clearable
-              style="min-width: 250px"
-              class="bg-white"
-            >
-              <template v-slot:prepend>
-                <q-icon name="search" />
-              </template>
-            </q-input>
+            <div class="row items-center q-gutter-x-md">
+              <q-toggle
+                v-model="showSubcategoryDocs"
+                label="Incluir sub-pastas"
+                color="secondary"
+                dense
+                class="q-mr-sm"
+              >
+                <q-tooltip>Mostrar documentos desta pasta e de todas as sub-pastas</q-tooltip>
+              </q-toggle>
+
+              <q-input
+                v-model="searchQuery"
+                label="Procurar em tudo"
+                filled
+                dense
+                clearable
+                style="min-width: 250px"
+                class="bg-white"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
+            </div>
           </div>
 
           <!-- Botões de Ação -->
@@ -351,6 +363,7 @@ const editingDocumentId = ref(null)
 const currentFileName = ref(null)
 const currentCategoryId = ref(null) // Categoria atual (pasta)
 const searchQuery = ref('')
+const showSubcategoryDocs = ref(false) // Toggle para mostrar sub-pastas
 
 const newDocument = ref({
   title: '',
@@ -395,7 +408,8 @@ const categoryTree = computed(() => {
 
 // Categorias no nível atual para mostrar como pastas
 const currentSubCategories = computed(() => {
-  return categories.value.filter(cat => (cat.parent || null) === currentCategoryId.value)
+  const currentId = currentCategoryId.value || null
+  return categories.value.filter(cat => (cat.parent || null) === currentId)
 })
 
 // Breadcrumbs para navegação
@@ -435,12 +449,34 @@ const filteredDocuments = computed(() => {
     )
   }
 
-  // Se não estiver numa categoria, não mostra listagem (conforme pedido: "escolher primeiro uma categoria")
+  // Se o toggle estiver ativo, buscar IDs de todas as subcategorias recursivamente
+  if (showSubcategoryDocs.value) {
+    const currentId = currentCategoryId.value || null
+    const allChildIds = getAllChildrenIds(currentId)
+    const categoryIdsToShow = [currentId, ...allChildIds]
+    return docs.filter(doc => categoryIdsToShow.includes(doc.category || null))
+  }
+
+  // Se não estiver numa categoria, não mostra listagem por defeito (conforme pedido)
+  // A menos que o toggle de sub-pastas esteja ativo (tratado acima)
   if (!currentCategoryId.value) return []
 
   // Caso contrário, mostra apenas documentos da categoria atual
   return docs.filter(doc => (doc.category || null) === currentCategoryId.value)
 })
+
+// Função auxiliar para pegar IDs de todos os filhos (recursivo)
+const getAllChildrenIds = (parentId) => {
+  const pId = parentId || null
+  const children = categories.value.filter(cat => (cat.parent || null) === pId)
+  let ids = children.map(c => c.id)
+  
+  children.forEach(child => {
+    ids = [...ids, ...getAllChildrenIds(child.id)]
+  })
+  
+  return ids
+}
 
 const columns = [
   { name: 'title', label: 'Título', field: 'title', align: 'left', sortable: true },
