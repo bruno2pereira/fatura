@@ -26,6 +26,8 @@
               filled
               dense
               clearable
+              emit-value
+              map-options
               @update:model-value="loadDocuments"
               style="min-width: 200px"
             >

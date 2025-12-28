@@ -27,6 +27,8 @@
           filled
           dense
           clearable
+          emit-value
+          map-options
           @update:model-value="loadInvoices"
           style="min-width: 200px"
         >
@@ -234,6 +236,13 @@
                 </div>
                 <div class="text-caption text-grey-6">
                   Por: {{ invoice.expand?.uploaded_by?.name || invoice.expand?.uploaded_by?.email || 'Desconhecido' }}
+                </div>
+                <div class="q-mt-xs">
+                  <q-badge 
+                    v-if="invoice.expand?.invoice_type"
+                    :color="invoice.expand.invoice_type.color || 'grey'" 
+                    :label="invoice.expand.invoice_type.name"
+                  />
                 </div>
                 <div class="text-subtitle1 text-weight-bold text-primary q-mt-xs">
                   {{ invoice.amount ? `${invoice.amount.toFixed(2)} €` : '-' }}
@@ -628,7 +637,7 @@ const loadInvoices = async () => {
         filters.push(`date >= "${startOfDay}" && date <= "${endOfDay}"`)
     }
 
-    if (selectedInvoiceCategory.value) {
+    if (selectedInvoiceCategory.value && selectedInvoiceCategory.value !== '') {
       filters.push(`invoice_type = "${selectedInvoiceCategory.value}"`)
     }
 
