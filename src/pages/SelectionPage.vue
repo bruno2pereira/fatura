@@ -41,7 +41,6 @@
               <p class="text-grey-7">
                 Organizar documentos da empresa por categorias
               </p>
-              <q-badge color="orange" class="q-mt-sm">Admin Only</q-badge>
             </q-card-section>
             <q-card-section class="bg-grey-1">
               <div class="row items-center justify-center">
