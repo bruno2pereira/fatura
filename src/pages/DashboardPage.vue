@@ -137,6 +137,12 @@
                 size="sm"
               />
             </template>
+            <template v-else-if="col.name === 'amount'">
+              <span :class="props.row.is_entrance ? 'text-positive text-weight-bold' : 'text-negative text-weight-bold'">
+                <q-icon :name="props.row.is_entrance ? 'arrow_upward' : 'arrow_downward'" size="xs" class="q-mr-xs" />
+                {{ col.value }}
+              </span>
+            </template>
             <template v-else-if="col.name === 'category'">
               <q-badge 
                 v-if="props.row.expand?.invoice_type"
@@ -244,7 +250,15 @@
                     :label="invoice.expand.invoice_type.name"
                   />
                 </div>
-                <div class="text-subtitle1 text-weight-bold text-primary q-mt-xs">
+                <div 
+                  class="text-subtitle1 text-weight-bold q-mt-xs row items-center" 
+                  :class="invoice.is_entrance ? 'text-positive' : 'text-negative'"
+                >
+                  <q-icon 
+                    :name="invoice.is_entrance ? 'arrow_upward' : 'arrow_downward'" 
+                    size="xs" 
+                    class="q-mr-xs" 
+                  />
                   {{ invoice.amount ? `${invoice.amount.toFixed(2)} €` : '-' }}
                 </div>
               </div>
@@ -364,6 +378,26 @@
                 </q-chip>
               </template>
             </q-select>
+
+            <div class="row q-col-gutter-sm q-mb-md">
+              <div class="col-12 text-subtitle2 text-grey-7">Tipo de Movimentação</div>
+              <div class="col-12">
+                <q-btn-toggle
+                  v-model="newInvoice.is_entrance"
+                  spread
+                  no-caps
+                  rounded
+                  unelevated
+                  toggle-color="primary"
+                  color="grey-2"
+                  text-color="grey-9"
+                  :options="[
+                    {label: 'Saída', value: false, icon: 'arrow_downward'},
+                    {label: 'Entrada', value: true, icon: 'arrow_upward'}
+                  ]"
+                />
+              </div>
+            </div>
 
             <q-checkbox 
               v-model="newInvoice.is_document" 
@@ -519,7 +553,8 @@ const newInvoice = ref({
   description: '',
   amount: null,
   invoice_type: null,
-  is_document: false
+  is_document: false,
+  is_entrance: false
 })
 
 const newInvoiceType = ref({
@@ -596,7 +631,8 @@ const currentMonthLabel = computed(() => {
 
 const totalSpend = computed(() => {
   return invoices.value.reduce((total, invoice) => {
-    return total + (invoice.amount || 0)
+    const amount = invoice.amount || 0
+    return total + (invoice.is_entrance ? amount : -amount)
   }, 0)
 })
 
@@ -750,6 +786,7 @@ const uploadInvoice = async () => {
     if (newInvoice.value.amount) formData.append('amount', newInvoice.value.amount)
     if (newInvoice.value.invoice_type) formData.append('invoice_type', newInvoice.value.invoice_type)
     formData.append('is_document', newInvoice.value.is_document)
+    formData.append('is_entrance', newInvoice.value.is_entrance)
     
     // Check if we're editing or creating
     if (editingInvoiceId.value) {
@@ -794,7 +831,8 @@ const resetForm = () => {
     description: '',
     amount: null,
     invoice_type: null,
-    is_document: false
+    is_document: false,
+    is_entrance: false
   }
   editingInvoiceId.value = null
   currentFileName.value = null
@@ -839,7 +877,8 @@ const editInvoice = (invoice) => {
     description: invoice.description || '',
     amount: invoice.amount || null,
     invoice_type: invoice.invoice_type || null,
-    is_document: invoice.is_document || false
+    is_document: invoice.is_document || false,
+    is_entrance: invoice.is_entrance || false
   }
   
   // Store the invoice ID and current file name

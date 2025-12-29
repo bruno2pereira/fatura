@@ -25,6 +25,12 @@ Adicione os seguintes campos à coleção existente `invoices`:
 - Required: Sim
 - Descrição: Indica se a invoice deve aparecer também na secção de documentos
 
+**is_entrance** (Boolean)
+- Tipo: Bool
+- Default value: false
+- Required: Sim
+- Descrição: Indica se é uma entrada (true) ou saída (false) de dinheiro
+
 ### 2. Criar Coleção `invoice_types`
 
 Crie uma nova coleção chamada `invoice_types` com os seguintes campos:

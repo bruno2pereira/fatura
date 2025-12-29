@@ -524,7 +524,7 @@ const loadDocuments = async () => {
         type: 'invoice',
         category: matchedCat?.id || null,
         title: inv.description || 'Fatura',
-        description: `Valor: ${inv.amount?.toFixed(2)}€ - Data: ${date.formatDate(inv.date, 'DD/MM/YYYY')}`,
+        description: `${inv.is_entrance ? '(Entrada)' : '(Saída)'} Valor: ${inv.amount?.toFixed(2)}€ - Data: ${date.formatDate(inv.date, 'DD/MM/YYYY')}`,
         expand: {
           category: matchedCat || (inv.expand?.invoice_type ? {
             name: inv.expand.invoice_type.name,
