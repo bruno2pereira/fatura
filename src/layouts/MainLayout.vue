@@ -2,14 +2,13 @@
   <q-layout view="lHh Lpr lFf" class="bg-grey-1">
     <q-header class="bg-gradient-primary">
       <q-toolbar class="q-py-sm">
-        <q-btn flat round dense icon="menu" class="q-mr-sm" v-if="$q.screen.lt.md" />
         
         <q-toolbar-title 
           class="cursor-pointer text-weight-bold" 
           @click="router.push('/')"
           style="letter-spacing: 0.5px;"
         >
-          NeonRetreat APP
+          NeonRetreat
         </q-toolbar-title>
         
         <q-space />
