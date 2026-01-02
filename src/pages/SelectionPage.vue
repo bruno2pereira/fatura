@@ -118,11 +118,12 @@ const logout = () => {
 }
 
 const fetchCurrentUser = async () => {
-  if (pb.authStore.isValid && pb.authStore.model) {
+  if (pb.authStore.isValid && pb.authStore.record) {
     try {
-      const user = await pb.collection('users').getOne(pb.authStore.model.id, {
+      const user = await pb.collection('users').getOne(pb.authStore.record.id, {
         expand: 'role'
       })
+      pb.authStore.save(pb.authStore.token, user)
       currentUser.value = user
     } catch (e) {
       console.error("Error fetching user role", e)
