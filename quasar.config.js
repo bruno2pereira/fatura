@@ -46,7 +46,9 @@ export default defineConfig((/* ctx */) => {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: {
+        VITE_POCKETBASE_URL: process.env.VITE_POCKETBASE_URL
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
