@@ -1,8 +1,8 @@
 {
-  "name": "frontend",
+  "name": "NeonRetreat",
   "version": "0.0.1",
   "description": "A Quasar Project",
-  "productName": "NeonRetreat APP",
+  "productName": "NeonRetreat",
   "author": "brunopereira <bruno.cpereira@prozis.com>",
   "type": "module",
   "private": true,

@@ -147,7 +147,7 @@ export default defineConfig((/* ctx */) => {
         clientsClaim: true
       },
       manifest: {
-        name: 'NeonRetreat App',
+        name: 'NeonRetreat',
         short_name: 'NeonRetreat',
         description: 'Faça a gestão da sua empresa com estilo',
         display: 'standalone',
@@ -234,7 +234,7 @@ export default defineConfig((/* ctx */) => {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'frontend',
+        appId: 'NeonRetreat',
       },
     },
 
