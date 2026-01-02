@@ -113,7 +113,13 @@ const loadLastTransactions = async () => {
   }
 }
 
+import { useAuth } from 'src/composables/useAuth'
+
+const { checkAdmin } = useAuth()
+
 onMounted(() => {
+  if (!checkAdmin()) return
+  
   loadBalance()
   loadLastTransactions()
 })

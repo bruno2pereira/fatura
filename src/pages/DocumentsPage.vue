@@ -348,9 +348,11 @@ import { pb } from 'boot/pocketbase'
 import { date, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import imageCompression from 'browser-image-compression'
+import { useAuth } from 'src/composables/useAuth'
 
 const router = useRouter()
 const $q = useQuasar()
+const { checkAdmin } = useAuth()
 const documents = ref([])
 const categories = ref([])
 const loading = ref(false)
@@ -759,34 +761,8 @@ onMounted(async () => {
     return
   }
 
-  try {
-    // In this app, it seems admin check is more complex, but I'll follow the existing pattern
-    
-    // Original check from view_file:
-    // const user = await pb.collection('users').getOne(pb.authStore.model.id, { expand: 'role' })
-    // const isAdmin = user?.expand?.role?.some(role => role.code === 'ADMIN')
-    
-    // I'll keep the original mount logic as much as possible to not break auth
-    const user = await pb.collection('users').getOne(pb.authStore.model.id, {
-      expand: 'role'
-    })
-    const roles = Array.isArray(user?.expand?.role) ? user.expand.role : [user?.expand?.role].filter(Boolean)
-    const isAdmin = roles.some(role => role.code === 'ADMIN')
-    
-    if (!isAdmin) {
-      $q.notify({
-        color: 'negative',
-        message: 'Acesso negado. Apenas administradores podem aceder a esta página.',
-        icon: 'report_problem'
-      })
-      router.push('/')
-      return
-    }
-  } catch (e) {
-    console.error('Error checking user permissions', e)
-    router.push('/')
-    return
-  }
+
+  if (!checkAdmin()) return
 
   await loadCategories()
   await loadDocuments()
