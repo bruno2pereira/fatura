@@ -5,7 +5,7 @@
         <q-card class="modern-card q-pa-lg" style="width: 90%; max-width: 400px; border-radius: 24px;">
           <q-card-section class="text-center q-mb-md">
             <div class="text-h4 text-weight-bold text-primary q-mb-xs">NeonRetreat</div>
-            <div class="text-subtitle1 text-grey-7">Bem-vindo de volta</div>
+            <div class="text-subtitle1">Bem-vindo de volta</div>
           </q-card-section>
 
           <q-card-section>
@@ -15,7 +15,7 @@
                 v-model="email"
                 label="E-mail"
                 lazy-rules
-                bg-color="grey-1"
+
                 :rules="[ val => val && val.length > 0 || 'Por favor insira o seu e-mail']"
               >
                 <template v-slot:prepend>
@@ -29,7 +29,7 @@
                 v-model="password"
                 label="Palavra-passe"
                 lazy-rules
-                bg-color="grey-1"
+
                 :rules="[ val => val && val.length > 0 || 'Por favor insira a sua palavra-passe']"
               >
                 <template v-slot:prepend>

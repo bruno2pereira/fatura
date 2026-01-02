@@ -7,9 +7,7 @@
           <!-- Título -->
           <div class="col-12 col-md-auto">
             <div class="row items-center q-gutter-x-sm">
-              <div class="text-h6 text-weight-bold text-grey-9">
                 Documentos
-              </div>
               <q-chip outline color="secondary" icon="folder" class="text-weight-bold">
                 Total: {{ filteredDocuments.length }}
               </q-chip>
@@ -18,9 +16,9 @@
 
           <!-- Breadcrumbs -->
           <div class="col-12 col-md">
-            <q-breadcrumbs class="text-grey-8 q-px-md" active-color="secondary">
+            <q-breadcrumbs class="q-px-md" active-color="secondary">
               <template v-slot:separator>
-                <q-icon size="1.2em" name="chevron_right" color="grey-5" />
+                <q-icon size="1.2em" name="chevron_right" />
               </template>
               <q-breadcrumbs-el 
                 v-for="crumb in breadcrumbs" 
@@ -53,7 +51,7 @@
                 dense
                 clearable
                 style="min-width: 250px"
-                class="bg-white"
+
               >
                 <template v-slot:prepend>
                   <q-icon name="search" />
@@ -83,7 +81,7 @@
               >
                 <q-tooltip>Gerir Árvore de Pastas</q-tooltip>
               </q-btn>
-              <q-btn flat round color="grey-7" icon="arrow_back" @click="goBack">
+              <q-btn flat round color="primary" icon="arrow_back" @click="goBack">
                 <q-tooltip>Voltar</q-tooltip>
               </q-btn>
             </div>
@@ -97,7 +95,7 @@
       <!-- Loading State -->
       <div v-if="loading" class="col-12 text-center q-pa-xl">
         <q-spinner color="secondary" size="3em" />
-        <div class="text-grey-7 q-mt-md">A carregar...</div>
+        <div class="q-mt-md">A carregar...</div>
       </div>
 
       <!-- Folders Section -->
@@ -123,10 +121,10 @@
 
       <!-- Files Section -->
       <div class="col-12">
-        <div class="text-subtitle2 text-grey-7 q-mb-sm q-mt-md" v-if="!searchQuery && filteredDocuments.length > 0">
+        <div class="text-subtitle2 q-mb-sm q-mt-md" v-if="!searchQuery && filteredDocuments.length > 0">
           Ficheiros nesta pasta
         </div>
-        <div class="text-subtitle2 text-grey-7 q-mb-sm q-mt-md" v-else-if="searchQuery">
+        <div class="text-subtitle2 q-mb-sm q-mt-md" v-else-if="searchQuery">
           Resultados da pesquisa
         </div>
 
@@ -145,7 +143,7 @@
               :props="props" 
               class="cursor-pointer" 
               @click="openFile(props.row)"
-              :class="{ 'bg-blue-1': props.row.type === 'invoice' }"
+              :class="{ 'bg-blue-1': props.row.type === 'invoice' && !$q.dark.isActive, 'bg-grey-9': props.row.type === 'invoice' && $q.dark.isActive }"
             >
               <q-td v-for="col in props.cols" :key="col.name" :props="props">
                 <template v-if="col.name === 'file'">
@@ -166,7 +164,7 @@
                     <q-btn flat round dense color="primary" icon="edit" @click.stop="editDocument(props.row)" />
                     <q-btn flat round dense color="negative" icon="delete" @click.stop="deleteDocument(props.row)" />
                   </div>
-                  <div v-else class="text-caption text-grey-6">Fatura</div>
+                  <div v-else class="text-caption">Fatura</div>
                 </template>
                 <template v-else>
                   {{ col.value }}
@@ -183,8 +181,8 @@
         v-if="!loading && currentSubCategories.length === 0 && filteredDocuments.length === 0" 
         class="col-12 text-center q-pa-xl"
       >
-        <q-icon name="folder_open" size="4rem" color="grey-4" />
-        <div class="text-grey-6 q-mt-md text-h6">Esta pasta está vazia</div>
+        <q-icon name="folder_open" size="4rem" color="grey" />
+        <div class="q-mt-md text-h6">Esta pasta está vazia</div>
         <q-btn 
           flat 
           color="secondary" 
@@ -776,11 +774,11 @@ onMounted(async () => {
 }
 
 .cursor-pointer:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .q-table tbody tr.cursor-pointer:hover {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .folder-card {

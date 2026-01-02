@@ -16,11 +16,11 @@
             <q-card-section class="text-center q-pa-xl">
               <q-icon name="receipt_long" size="80px" color="primary" class="q-mb-md" />
               <div class="text-h5 text-weight-bold q-mb-sm">Invoices</div>
-              <p class="text-grey-7">
+              <p>
                 Gerir faturas, adicionar novos documentos e acompanhar despesas
               </p>
             </q-card-section>
-            <q-card-section class="bg-grey-1">
+            <q-card-section>
               <div class="row items-center justify-center">
                 <q-icon name="arrow_forward" color="primary" />
                 <span class="q-ml-sm text-primary text-weight-medium">Aceder</span>
@@ -38,11 +38,11 @@
             <q-card-section class="text-center q-pa-xl">
               <q-icon name="folder_open" size="80px" color="secondary" class="q-mb-md" />
               <div class="text-h5 text-weight-bold q-mb-sm">Documentos</div>
-              <p class="text-grey-7">
+              <p>
                 Organizar documentos da empresa por categorias
               </p>
             </q-card-section>
-            <q-card-section class="bg-grey-1">
+            <q-card-section>
               <div class="row items-center justify-center">
                 <q-icon name="arrow_forward" color="secondary" />
                 <span class="q-ml-sm text-secondary text-weight-medium">Aceder</span>
@@ -60,11 +60,11 @@
             <q-card-section class="text-center q-pa-xl">
               <q-icon name="account_balance_wallet" size="80px" color="accent" class="q-mb-md" />
               <div class="text-h5 text-weight-bold q-mb-sm">Balance</div>
-              <p class="text-grey-7">
+              <p>
                 Ver o saldo total e as últimas transações
               </p>
             </q-card-section>
-            <q-card-section class="bg-grey-1">
+            <q-card-section>
               <div class="row items-center justify-center">
                 <q-icon name="arrow_forward" color="accent" />
                 <span class="q-ml-sm text-accent text-weight-medium">Aceder</span>

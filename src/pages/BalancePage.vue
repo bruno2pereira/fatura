@@ -18,7 +18,7 @@
       <div class="col-12 col-md-8">
         <q-card class="modern-card">
           <q-card-section>
-            <div class="text-h6 text-grey-9 q-mb-md">Últimas 5 Transações</div>
+            <div class="text-h6 q-mb-md">Últimas 5 Transações</div>
             
             <div v-if="loadingInvoices" class="text-center q-pa-md">
               <q-spinner color="primary" size="2em" />
@@ -51,7 +51,7 @@
       </div>
       
       <div class="col-12 col-md-8 flex justify-center q-mt-md">
-         <q-btn flat color="grey-7" icon="arrow_back" label="Voltar" @click="$router.go(-1)" />
+         <q-btn flat color="primary" icon="arrow_back" label="Voltar" @click="$router.go(-1)" />
       </div>
 
     </div>

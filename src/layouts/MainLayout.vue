@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf" class="bg-grey-1">
+  <q-layout view="lHh Lpr lFf">
     <q-header class="bg-gradient-primary">
       <q-toolbar class="q-py-sm">
         
@@ -21,7 +21,7 @@
             </q-avatar>
             <q-menu auto-close transition-show="jump-down" transition-hide="jump-up" :offset="[0, 10]">
               <q-list style="min-width: 200px" class="rounded-borders">
-                <q-item class="text-center q-py-lg bg-grey-1">
+                <q-item class="text-center q-py-lg">
                    <q-item-section>
                      <q-avatar size="60px" class="bg-white text-primary shadow-1 q-mx-auto q-mb-sm">
                         <img v-if="avatarUrl" :src="avatarUrl">

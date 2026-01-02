@@ -7,7 +7,7 @@
       <!-- Título e Total -->
       <div class="col-12 col-md-auto">
         <div class="row items-center justify-between justify-md-start">
-          <div :class="$q.screen.lt.md ? 'text-h6' : 'text-h6'" class="text-weight-bold q-mr-md text-grey-9">
+          <div :class="$q.screen.lt.md ? 'text-h6' : 'text-h6'" class="text-weight-bold q-mr-md">
             Invoices
           </div>
           <q-chip outline color="primary" icon="euro_symbol" class="text-weight-bold">
@@ -40,14 +40,14 @@
       
       <!-- Navegação de Data -->
       <div class="col-12 col-md-auto">
-        <div class="row items-center justify-center bg-grey-2 rounded-borders q-pa-xs">
-          <q-btn flat round dense size="sm" icon="chevron_left" color="grey-8" @click="prevMonth" />
+        <div class="row items-center justify-center rounded-borders q-pa-xs">
+          <q-btn flat round dense size="sm" icon="chevron_left" @click="prevMonth" />
           
           <q-btn 
             flat 
             dense 
             no-caps 
-            class="q-px-sm text-grey-9" 
+            class="q-px-sm" 
             :class="$q.screen.lt.sm ? 'text-caption' : 'text-subtitle2'"
             icon-right="event" 
             :label="currentMonthLabel"
@@ -61,7 +61,7 @@
             </q-popup-proxy>
           </q-btn>
           
-          <q-btn flat round dense size="sm" icon="chevron_right" color="grey-8" @click="nextMonth" />
+          <q-btn flat round dense size="sm" icon="chevron_right" @click="nextMonth" />
         </div>
       </div>
 
@@ -90,7 +90,7 @@
           >
             <q-tooltip v-if="$q.screen.xs">Gerir Tipos</q-tooltip>
           </q-btn>
-          <q-btn flat round color="grey-7" icon="arrow_back" @click="goBack">
+          <q-btn flat round color="primary" icon="arrow_back" @click="goBack">
             <q-tooltip>Voltar</q-tooltip>
           </q-btn>
         </div>
@@ -203,7 +203,7 @@
         <q-spinner color="primary" size="3em" />
       </div>
       
-      <div v-else-if="invoices.length === 0" class="text-center q-pa-md text-grey-6">
+      <div v-else-if="invoices.length === 0" class="text-center q-pa-md">
         Nenhuma fatura encontrada para este período
       </div>
 
@@ -233,13 +233,13 @@
 
               <!-- Info -->
               <div class="col">
-                <div class="text-subtitle2 text-weight-medium text-grey-9">
+                <div class="text-subtitle2 text-weight-medium">
                   {{ invoice.description || 'Sem descrição' }}
                 </div>
-                <div class="text-caption text-grey-7 q-mt-xs">
+                <div class="text-caption q-mt-xs">
                   {{ date.formatDate(invoice.date, 'DD/MM/YYYY') }}
                 </div>
-                <div class="text-caption text-grey-6">
+                <div class="text-caption">
                   Por: {{ invoice.expand?.uploaded_by?.name || invoice.expand?.uploaded_by?.email || 'Desconhecido' }}
                 </div>
                 <div class="q-mt-xs">
