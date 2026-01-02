@@ -19,3 +19,9 @@
   for = "/service-worker.js"
   [headers.values]
     Cache-Control = "no-cache"
+
+[context.master.environment]
+  VITE_POCKETBASE_URL = "https://toosag.pockethost.io/"
+
+[context.develop.environment]
+  VITE_POCKETBASE_URL = "https://dev-toosag.pockethost.io/"
