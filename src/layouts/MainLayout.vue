@@ -1,31 +1,43 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-toolbar-title :class="$q.screen.lt.sm ? 'text-subtitle1' : ''" class="cursor-pointer" @click="router.push('/')">NeonRetreat APP</q-toolbar-title>
+  <q-layout view="lHh Lpr lFf" class="bg-grey-1">
+    <q-header class="bg-gradient-primary">
+      <q-toolbar class="q-py-sm">
+        <q-btn flat round dense icon="menu" class="q-mr-sm" v-if="$q.screen.lt.md" />
+        
+        <q-toolbar-title 
+          class="cursor-pointer text-weight-bold" 
+          @click="router.push('/')"
+          style="letter-spacing: 0.5px;"
+        >
+          NeonRetreat APP
+        </q-toolbar-title>
         
         <q-space />
 
         <div v-if="user" class="row items-center q-gutter-x-sm">
-          <q-btn round flat>
-            <q-avatar size="38px" color="white" text-color="primary">
+          <q-btn round flat class="q-pa-xs">
+            <q-avatar size="40px" class="bg-white text-primary shadow-1">
               <img v-if="avatarUrl" :src="avatarUrl">
               <span v-else class="text-weight-bold">{{ userInitial }}</span>
             </q-avatar>
-            <q-menu auto-close>
-              <q-list style="min-width: 150px">
-                <q-item class="text-center bg-grey-2 q-py-md">
+            <q-menu auto-close transition-show="jump-down" transition-hide="jump-up" :offset="[0, 10]">
+              <q-list style="min-width: 200px" class="rounded-borders">
+                <q-item class="text-center q-py-lg bg-grey-1">
                    <q-item-section>
-                     <div class="text-weight-bold">{{ user.name || 'Utilizador' }}</div>
-                     <div class="text-caption text-grey">{{ user.email }}</div>
+                     <q-avatar size="60px" class="bg-white text-primary shadow-1 q-mx-auto q-mb-sm">
+                        <img v-if="avatarUrl" :src="avatarUrl">
+                        <span v-else class="text-weight-bold text-h5">{{ userInitial }}</span>
+                     </q-avatar>
+                     <div class="text-weight-bold text-subtitle1">{{ user.name || 'Utilizador' }}</div>
+                     <div class="text-caption text-grey-7">{{ user.email }}</div>
                    </q-item-section>
                 </q-item>
                 <q-separator />
-                <q-item clickable v-close-popup @click="logout" class="text-negative">
+                <q-item clickable v-close-popup @click="logout" class="text-negative q-py-md">
                   <q-item-section avatar>
                     <q-icon name="logout" />
                   </q-item-section>
-                  <q-item-section>Sair</q-item-section>
+                  <q-item-section class="text-weight-medium">Sair</q-item-section>
                 </q-item>
               </q-list>
             </q-menu>
@@ -35,7 +47,11 @@
     </q-header>
 
     <q-page-container>
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </q-page-container>
   </q-layout>
 </template>

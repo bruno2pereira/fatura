@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md">
     <!-- Header/Filter Card -->
-    <q-card flat bordered class="q-mb-md bg-white">
+    <q-card class="modern-card q-mb-md">
       <q-card-section class="q-pa-sm q-pa-md-md">
         <div class="row q-col-gutter-sm items-center">
           <!-- Título -->
@@ -108,9 +108,7 @@
           class="col-12 col-sm-6 col-md-3 col-lg-2"
         >
           <q-card 
-            flat 
-            bordered 
-            class="folder-card cursor-pointer" 
+            class="modern-card folder-card cursor-pointer" 
             @click="selectCategory(cat.id)"
           >
             <q-card-section class="flex items-center no-wrap">
@@ -132,16 +130,16 @@
           Resultados da pesquisa
         </div>
 
-        <q-table
-          :rows="filteredDocuments"
-          :columns="columns"
-          row-key="id"
-          :loading="loading"
-          flat
-          bordered
-          no-data-label="Nenhum ficheiro encontrado nesta pasta"
-          :rows-per-page-options="[10, 20, 50]"
-        >
+        <q-card class="modern-card">
+          <q-table
+            :rows="filteredDocuments"
+            :columns="columns"
+            row-key="id"
+            :loading="loading"
+            flat
+            no-data-label="Nenhum ficheiro encontrado nesta pasta"
+            :rows-per-page-options="[10, 20, 50]"
+          >
           <template v-slot:body="props">
             <q-tr 
               :props="props" 
@@ -175,8 +173,9 @@
                 </template>
               </q-td>
             </q-tr>
-          </template>
-        </q-table>
+            </template>
+          </q-table>
+        </q-card>
       </div>
 
       <!-- Empty State -->

@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex flex-center bg-gradient">
+  <q-page class="flex flex-center bg-gradient-primary">
     <div class="selection-container">
       <div class="text-center q-mb-xl">
         <h3 class="text-h3 text-weight-bold text-white q-mb-md">Bem-vindo!</h3>
@@ -114,10 +114,11 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.bg-gradient {
+/* .bg-gradient {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
-}
+} */
+/* Removed local gradient to use global .bg-gradient-primary */
 
 .selection-container {
   width: 100%;

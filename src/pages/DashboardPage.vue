@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md">
- <q-card flat bordered class="q-mb-md bg-white">
+  <q-card class="modern-card q-mb-md">
   <q-card-section class="q-pa-sm q-pa-md-md">
     <!-- Layout Responsivo: Vertical em mobile, Horizontal em desktop -->
     <div class="row q-col-gutter-sm">
@@ -102,96 +102,100 @@
 
 
     <!-- Tabela para Desktop -->
-    <q-table
-      v-if="$q.screen.gt.sm"
-      :rows="invoices"
-      :columns="columns"
-      row-key="id"
-      :loading="loading"
-      no-data-label="Nenhuma fatura encontrada para este período"
-    >
-      <template v-slot:body="props">
-        <q-tr 
-          :props="props" 
-          class="cursor-pointer" 
-          @click="openFile(props.row)"
-        >
-          <q-td 
-            v-for="col in props.cols" 
-            :key="col.name" 
-            :props="props"
+    <q-card class="modern-card" v-if="$q.screen.gt.sm">
+      <q-table
+        :rows="invoices"
+        :columns="columns"
+        row-key="id"
+        :loading="loading"
+        flat
+        no-data-label="Nenhuma fatura encontrada para este período"
+      >
+        <template v-slot:body="props">
+          <q-tr 
+            :props="props" 
+            class="cursor-pointer" 
+            @click="openFile(props.row)"
           >
-            <template v-if="col.name === 'file'">
-              <div v-if="isImage(props.row.file)">
-                <q-avatar rounded size="40px">
-                  <q-img :src="getThumbUrl(props.row)" spinner-color="white" />
-                </q-avatar>
-              </div>
-              <q-icon 
-                v-else
-                :name="getFileIcon(props.row.file)" 
-                color="primary"
-                size="sm"
-              />
-            </template>
-            <template v-else-if="col.name === 'amount'">
-              <span :class="props.row.is_entrance ? 'text-positive text-weight-bold' : 'text-negative text-weight-bold'">
-                <q-icon :name="props.row.is_entrance ? 'arrow_upward' : 'arrow_downward'" size="xs" class="q-mr-xs" />
+            <q-td 
+              v-for="col in props.cols" 
+              :key="col.name" 
+              :props="props"
+            >
+              <template v-if="col.name === 'file'">
+                <div v-if="isImage(props.row.file)">
+                  <q-avatar rounded size="40px">
+                    <q-img :src="getThumbUrl(props.row)" spinner-color="white" />
+                  </q-avatar>
+                </div>
+                <q-icon 
+                  v-else
+                  :name="getFileIcon(props.row.file)" 
+                  color="primary"
+                  size="sm"
+                />
+              </template>
+              <template v-else-if="col.name === 'amount'">
+                <span :class="props.row.is_entrance ? 'text-positive text-weight-bold' : 'text-negative text-weight-bold'">
+                  <q-icon :name="props.row.is_entrance ? 'arrow_upward' : 'arrow_downward'" size="xs" class="q-mr-xs" />
+                  {{ col.value }}
+                </span>
+              </template>
+              <template v-else-if="col.name === 'category'">
+                <q-badge 
+                  v-if="props.row.expand?.invoice_type"
+                  :color="props.row.expand.invoice_type.color || 'grey'" 
+                  :label="props.row.expand.invoice_type.name"
+                  class="q-py-xs q-px-sm"
+                  style="border-radius: 6px;"
+                />
+                <span v-else class="text-grey-6">-</span>
+              </template>
+              <template v-else-if="col.name === 'is_document'">
+                <q-icon 
+                  v-if="props.row.is_document" 
+                  name="check_circle" 
+                  color="green" 
+                  size="sm"
+                >
+                  <q-tooltip>Está nos documentos</q-tooltip>
+                </q-icon>
+                <span v-else class="text-grey-6">-</span>
+              </template>
+              <template v-else-if="col.name === 'actions'">
+                <div class="row items-center justify-end q-gutter-xs" @click.stop>
+                  <q-btn 
+                    v-if="canEdit" 
+                    flat 
+                    round 
+                    dense
+                    color="primary" 
+                    icon="edit" 
+                    @click.stop="editInvoice(props.row)" 
+                  >
+                    <q-tooltip>Editar</q-tooltip>
+                  </q-btn>
+                  <q-btn 
+                    v-if="canDelete" 
+                    flat 
+                    round 
+                    dense
+                    color="negative" 
+                    icon="delete" 
+                    @click.stop="deleteInvoice(props.row.id)" 
+                  >
+                    <q-tooltip>Eliminar</q-tooltip>
+                  </q-btn>
+                </div>
+              </template>
+              <template v-else>
                 {{ col.value }}
-              </span>
-            </template>
-            <template v-else-if="col.name === 'category'">
-              <q-badge 
-                v-if="props.row.expand?.invoice_type"
-                :color="props.row.expand.invoice_type.color || 'grey'" 
-                :label="props.row.expand.invoice_type.name"
-              />
-              <span v-else class="text-grey-6">-</span>
-            </template>
-            <template v-else-if="col.name === 'is_document'">
-              <q-icon 
-                v-if="props.row.is_document" 
-                name="check_circle" 
-                color="green" 
-                size="sm"
-              >
-                <q-tooltip>Está nos documentos</q-tooltip>
-              </q-icon>
-              <span v-else class="text-grey-6">-</span>
-            </template>
-            <template v-else-if="col.name === 'actions'">
-              <div class="row items-center justify-end q-gutter-xs" @click.stop>
-                <q-btn 
-                  v-if="canEdit" 
-                  flat 
-                  round 
-                  dense
-                  color="primary" 
-                  icon="edit" 
-                  @click.stop="editInvoice(props.row)" 
-                >
-                  <q-tooltip>Editar</q-tooltip>
-                </q-btn>
-                <q-btn 
-                  v-if="canDelete" 
-                  flat 
-                  round 
-                  dense
-                  color="negative" 
-                  icon="delete" 
-                  @click.stop="deleteInvoice(props.row.id)" 
-                >
-                  <q-tooltip>Eliminar</q-tooltip>
-                </q-btn>
-              </div>
-            </template>
-            <template v-else>
-              {{ col.value }}
-            </template>
-          </q-td>
-        </q-tr>
-      </template>
-    </q-table>
+              </template>
+            </q-td>
+          </q-tr>
+        </template>
+      </q-table>
+    </q-card>
 
     <!-- Cards para Mobile -->
     <div v-else>
@@ -207,9 +211,7 @@
         <q-card 
           v-for="invoice in invoices" 
           :key="invoice.id" 
-          flat 
-          bordered
-          class="q-pa-sm cursor-pointer"
+          class="modern-card q-pa-sm cursor-pointer"
           @click="openFile(invoice)"
         >
           <q-card-section class="q-pa-sm">
