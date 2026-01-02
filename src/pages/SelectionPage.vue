@@ -50,6 +50,28 @@
             </q-card-section>
           </q-card>
         </div>
+
+        <!-- Balance Card -->
+        <div class="col-12 col-sm-6 col-md-5" v-if="isAdmin">
+          <q-card 
+            class="selection-card cursor-pointer" 
+            @click="goToBalance"
+          >
+            <q-card-section class="text-center q-pa-xl">
+              <q-icon name="account_balance_wallet" size="80px" color="accent" class="q-mb-md" />
+              <div class="text-h5 text-weight-bold q-mb-sm">Balance</div>
+              <p class="text-grey-7">
+                Ver o saldo total e as últimas transações
+              </p>
+            </q-card-section>
+            <q-card-section class="bg-grey-1">
+              <div class="row items-center justify-center">
+                <q-icon name="arrow_forward" color="accent" />
+                <span class="q-ml-sm text-accent text-weight-medium">Aceder</span>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
       </div>
 
       <!-- Logout Button -->
@@ -72,7 +94,7 @@ import { useRouter } from 'vue-router'
 import { pb } from 'boot/pocketbase'
 
 const router = useRouter()
-const currentUser = ref(pb.authStore.model)
+const currentUser = ref(pb.authStore.record)
 
 const isAdmin = computed(() => {
   return currentUser.value?.expand?.role?.some(role => role.code === 'ADMIN')
@@ -84,6 +106,10 @@ const goToInvoices = () => {
 
 const goToDocuments = () => {
   router.push('/documents')
+}
+
+const goToBalance = () => {
+  router.push('/balance')
 }
 
 const logout = () => {
