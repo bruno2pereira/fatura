@@ -727,11 +727,11 @@ const openFile = (doc) => {
 }
 
 const getFileUrl = (record) => {
-  return pb.getFileUrl(record, record.file)
+  return pb.files.getURL(record, record.file)
 }
 
 const getThumbUrl = (record) => {
-  return pb.getFileUrl(record, record.file, { thumb: '100x100' })
+  return pb.files.getURL(record, record.file, { thumb: '100x100' })
 }
 
 const isImage = (filename) => {

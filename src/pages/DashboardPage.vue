@@ -93,9 +93,6 @@
           <q-btn flat round color="grey-7" icon="arrow_back" @click="goBack">
             <q-tooltip>Voltar</q-tooltip>
           </q-btn>
-          <q-btn flat round color="grey-7" icon="logout" @click="logout">
-            <q-tooltip>Logout</q-tooltip>
-          </q-btn>
         </div>
       </div>
     </div>
@@ -890,11 +887,11 @@ const editInvoice = (invoice) => {
 }
 
 const getFileUrl = (record) => {
-  return pb.getFileUrl(record, record.file)
+  return pb.files.getURL(record, record.file)
 }
 
 const getThumbUrl = (record) => {
-  return pb.getFileUrl(record, record.file, { thumb: '100x100' })
+  return pb.files.getURL(record, record.file, { thumb: '100x100' })
 }
 
 const isImage = (filename) => {
@@ -914,10 +911,6 @@ const goBack = () => {
   router.push('/')
 }
 
-const logout = () => {
-  pb.authStore.clear()
-  router.push('/login')
-}
 
 const addInvoiceType = async () => {
   if (!newInvoiceType.value.name) return

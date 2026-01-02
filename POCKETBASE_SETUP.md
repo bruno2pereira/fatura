@@ -150,6 +150,10 @@ Crie uma nova coleção chamada `document_categories` com os seguintes campos:
 4. **Document Categories**: 
    - Tudo: Apenas ADMIN
 
+5. **Users** (Para Avatares):
+   - **View**: Deixar vazio (Public) ou `id != ""` para que as imagens de perfil (avatar) carreguem corretamente.
+
+
 ## 📝 Passos de Configuração
 
 1. Aceda ao PocketBase Admin Dashboard
