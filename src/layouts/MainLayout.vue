@@ -8,7 +8,7 @@
           @click="router.push('/')"
           style="letter-spacing: 0.5px;"
         >
-          NeonRetreat
+          {{ $t('app.name') }}
         </q-toolbar-title>
         
         <q-space />
@@ -27,17 +27,23 @@
                         <img v-if="avatarUrl" :src="avatarUrl">
                         <span v-else class="text-weight-bold text-h5">{{ userInitial }}</span>
                      </q-avatar>
-                     <div class="text-weight-bold text-subtitle1">{{ user.name || 'Utilizador' }}</div>
+                     <div class="text-weight-bold text-subtitle1">{{ user.name || $t('auth.user') }}</div>
                      <div class="text-caption text-grey-7">{{ user.email }}</div>
                    </q-item-section>
                 </q-item>
-                <q-separator />
-                <q-item clickable v-close-popup @click="logout" class="text-negative q-py-md">
-                  <q-item-section avatar>
-                    <q-icon name="logout" />
-                  </q-item-section>
-                  <q-item-section class="text-weight-medium">Sair</q-item-section>
-                </q-item>
+                 <q-item clickable v-close-popup @click="router.push('/settings')" class="q-py-md">
+                   <q-item-section avatar>
+                     <q-icon name="settings" />
+                   </q-item-section>
+                   <q-item-section class="text-weight-medium">{{ $t('auth.settings') }}</q-item-section>
+                 </q-item>
+                 <q-separator />
+                 <q-item clickable v-close-popup @click="logout" class="text-negative q-py-md">
+                   <q-item-section avatar>
+                     <q-icon name="logout" />
+                   </q-item-section>
+                   <q-item-section class="text-weight-medium">{{ $t('auth.logout') }}</q-item-section>
+                 </q-item>
               </q-list>
             </q-menu>
           </q-btn>

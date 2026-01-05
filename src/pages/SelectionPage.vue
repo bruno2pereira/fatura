@@ -2,8 +2,8 @@
   <q-page class="flex flex-center bg-gradient-primary">
     <div class="selection-container">
       <div class="text-center q-mb-xl">
-        <h3 class="text-h3 text-weight-bold text-white q-mb-md">Bem-vindo!</h3>
-        <p class="text-h6 text-white-7">Escolha a área que deseja aceder</p>
+        <h3 class="text-h3 text-weight-bold text-white q-mb-md">{{ $t('app.welcome') }}</h3>
+        <p class="text-h6 text-white-7">{{ $t('app.chooseArea') }}</p>
       </div>
 
       <div class="row q-col-gutter-lg justify-center">
@@ -15,15 +15,15 @@
           >
             <q-card-section class="text-center q-pa-xl">
               <q-icon name="receipt_long" size="80px" color="primary" class="q-mb-md" />
-              <div class="text-h5 text-weight-bold q-mb-sm">Invoices</div>
+              <div class="text-h5 text-weight-bold q-mb-sm">{{ $t('selection.invoices') }}</div>
               <p>
-                Gerir faturas, adicionar novos documentos e acompanhar despesas
+                {{ $t('selection.invoicesDesc') }}
               </p>
             </q-card-section>
             <q-card-section>
               <div class="row items-center justify-center">
                 <q-icon name="arrow_forward" color="primary" />
-                <span class="q-ml-sm text-primary text-weight-medium">Aceder</span>
+                <span class="q-ml-sm text-primary text-weight-medium">{{ $t('selection.access') }}</span>
               </div>
             </q-card-section>
           </q-card>
@@ -37,15 +37,15 @@
           >
             <q-card-section class="text-center q-pa-xl">
               <q-icon name="folder_open" size="80px" color="secondary" class="q-mb-md" />
-              <div class="text-h5 text-weight-bold q-mb-sm">Documentos</div>
+              <div class="text-h5 text-weight-bold q-mb-sm">{{ $t('selection.documents') }}</div>
               <p>
-                Organizar documentos da empresa por categorias
+                {{ $t('selection.documentsDesc') }}
               </p>
             </q-card-section>
             <q-card-section>
               <div class="row items-center justify-center">
                 <q-icon name="arrow_forward" color="secondary" />
-                <span class="q-ml-sm text-secondary text-weight-medium">Aceder</span>
+                <span class="q-ml-sm text-secondary text-weight-medium">{{ $t('selection.access') }}</span>
               </div>
             </q-card-section>
           </q-card>
@@ -59,15 +59,15 @@
           >
             <q-card-section class="text-center q-pa-xl">
               <q-icon name="account_balance_wallet" size="80px" color="accent" class="q-mb-md" />
-              <div class="text-h5 text-weight-bold q-mb-sm">Balance</div>
+              <div class="text-h5 text-weight-bold q-mb-sm">{{ $t('selection.balance') }}</div>
               <p>
-                Ver o saldo total e as últimas transações
+                {{ $t('selection.balanceDesc') }}
               </p>
             </q-card-section>
             <q-card-section>
               <div class="row items-center justify-center">
                 <q-icon name="arrow_forward" color="accent" />
-                <span class="q-ml-sm text-accent text-weight-medium">Aceder</span>
+                <span class="q-ml-sm text-accent text-weight-medium">{{ $t('selection.access') }}</span>
               </div>
             </q-card-section>
           </q-card>
@@ -80,7 +80,7 @@
           flat 
           color="white" 
           icon="logout" 
-          label="Sair" 
+          :label="$t('auth.logout')" 
           @click="logout"
         />
       </div>

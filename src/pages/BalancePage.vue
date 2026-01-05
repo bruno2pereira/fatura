@@ -5,7 +5,7 @@
       <div class="col-12 col-md-8">
         <q-card class="modern-card bg-gradient-primary text-white q-mb-md">
           <q-card-section class="text-center q-py-lg">
-            <div class="text-h6 opacity-7">Balance Total</div>
+            <div class="text-h6 opacity-7">{{ $t('dashboard.totalBalance') }}</div>
             <div class="text-h2 text-weight-bold q-my-sm">
               <q-spinner v-if="loadingBalance" color="white" size="1em" />
               <span v-else>{{ formatCurrency(totalBalance) }}</span>
@@ -18,7 +18,7 @@
       <div class="col-12 col-md-8">
         <q-card class="modern-card">
           <q-card-section>
-            <div class="text-h6 q-mb-md">Últimas 5 Transações</div>
+            <div class="text-h6 q-mb-md">{{ $t('dashboard.lastTransactions') }}</div>
             
             <div v-if="loadingInvoices" class="text-center q-pa-md">
               <q-spinner color="primary" size="2em" />
@@ -26,7 +26,7 @@
             
             <q-list separator v-else>
               <q-item v-if="invoices.length === 0" class="text-center text-grey-6 q-pa-md">
-                Nenhuma transação encontrada
+                {{ $t('dashboard.noTransactions') }}
               </q-item>
 
               <q-item v-for="invoice in invoices" :key="invoice.id" class="q-py-md">
@@ -35,7 +35,7 @@
                 </q-item-section>
 
                 <q-item-section>
-                  <q-item-label class="text-weight-bold">{{ invoice.description || 'Sem descrição' }}</q-item-label>
+                  <q-item-label class="text-weight-bold">{{ invoice.description || $t('common.none') }}</q-item-label>
                   <q-item-label caption>{{ formatDate(invoice.date) }}</q-item-label>
                 </q-item-section>
 
@@ -51,7 +51,7 @@
       </div>
       
       <div class="col-12 col-md-8 flex justify-center q-mt-md">
-         <q-btn flat color="primary" icon="arrow_back" label="Voltar" @click="$router.go(-1)" />
+         <q-btn flat color="primary" icon="arrow_back" :label="$t('common.back')" @click="$router.go(-1)" />
       </div>
 
     </div>
@@ -62,18 +62,21 @@
 import { ref, onMounted } from 'vue'
 import { pb } from 'boot/pocketbase'
 import { date } from 'quasar'
+import { useI18n } from 'vue-i18n'
 
+const { locale } = useI18n()
 const loadingBalance = ref(false)
 const loadingInvoices = ref(false)
 const totalBalance = ref(0)
 const invoices = ref([])
 
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(value || 0)
+  return new Intl.NumberFormat(locale.value, { style: 'currency', currency: 'EUR' }).format(value || 0)
 }
 
 const formatDate = (dateString) => {
-  return date.formatDate(dateString, 'DD/MM/YYYY')
+  const format = locale.value === 'pt-PT' ? 'DD/MM/YYYY' : 'MM/DD/YYYY'
+  return date.formatDate(dateString, format)
 }
 
 const loadBalance = async () => {

@@ -8,10 +8,10 @@
       <div class="col-12 col-md-auto">
         <div class="row items-center justify-between justify-md-start">
           <div :class="$q.screen.lt.md ? 'text-h6' : 'text-h6'" class="text-weight-bold q-mr-md">
-            Invoices
+            {{ $t('navigation.invoices') }}
           </div>
           <q-chip outline color="primary" icon="euro_symbol" class="text-weight-bold">
-            Total: {{ totalSpend.toFixed(2) }}
+            {{ $t('invoices.total') }}: {{ totalSpend.toFixed(2) }}
           </q-chip>
         </div>
       </div>
@@ -23,7 +23,7 @@
         <q-select
           v-model="selectedInvoiceCategory"
           :options="invoiceCategoryOptions"
-          label="Filtrar por Tipo"
+          :label="$t('invoices.filterByType')"
           filled
           dense
           clearable
@@ -55,7 +55,7 @@
             <q-popup-proxy cover transition-show="scale" transition-hide="scale">
               <q-date v-model="selectedDate" range minimal mask="YYYY-MM-DD" emit-immediately @update:model-value="onDateChange">
                 <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Fechar" color="primary" flat />
+                  <q-btn v-close-popup :label="$t('common.close')" color="primary" flat />
                 </div>
               </q-date>
             </q-popup-proxy>
@@ -73,25 +73,25 @@
             unelevated 
             color="primary" 
             icon="add" 
-            :label="$q.screen.gt.xs ? 'Upload Invoice' : undefined"
+            :label="$q.screen.gt.xs ? $t('invoices.uploadInvoice') : undefined"
             @click="showUploadDialog = true" 
             class="full-width-xs"
           >
-            <q-tooltip v-if="$q.screen.xs">Upload Invoice</q-tooltip>
+            <q-tooltip v-if="$q.screen.xs">{{ $t('invoices.uploadInvoice') }}</q-tooltip>
           </q-btn>
           <q-btn 
             v-if="canAdd"
             unelevated 
             color="secondary" 
             icon="category" 
-            :label="$q.screen.gt.xs ? 'Tipos' : undefined"
+            :label="$q.screen.gt.xs ? $t('common.type') : undefined"
             @click="showCategoriesDialog = true" 
             class="full-width-xs"
           >
-            <q-tooltip v-if="$q.screen.xs">Gerir Tipos</q-tooltip>
+            <q-tooltip v-if="$q.screen.xs">{{ $t('invoices.manageTypes') }}</q-tooltip>
           </q-btn>
           <q-btn flat round color="primary" icon="arrow_back" @click="goBack">
-            <q-tooltip>Voltar</q-tooltip>
+            <q-tooltip>{{ $t('common.back') }}</q-tooltip>
           </q-btn>
         </div>
       </div>
@@ -109,7 +109,7 @@
         row-key="id"
         :loading="loading"
         flat
-        no-data-label="Nenhuma fatura encontrada para este período"
+        :no-data-label="$t('invoices.noInvoices')"
       >
         <template v-slot:body="props">
           <q-tr 
@@ -173,7 +173,7 @@
                     icon="edit" 
                     @click.stop="editInvoice(props.row)" 
                   >
-                    <q-tooltip>Editar</q-tooltip>
+                    <q-tooltip>{{ $t('common.edit') }}</q-tooltip>
                   </q-btn>
                   <q-btn 
                     v-if="canDelete" 
@@ -184,7 +184,7 @@
                     icon="delete" 
                     @click.stop="deleteInvoice(props.row.id)" 
                   >
-                    <q-tooltip>Eliminar</q-tooltip>
+                    <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
                   </q-btn>
                 </div>
               </template>
@@ -204,7 +204,7 @@
       </div>
       
       <div v-else-if="invoices.length === 0" class="text-center q-pa-md">
-        Nenhuma fatura encontrada para este período
+        {{ $t('invoices.noInvoices') }}
       </div>
 
       <div v-else class="q-gutter-sm">
@@ -240,7 +240,7 @@
                   {{ date.formatDate(invoice.date, 'DD/MM/YYYY') }}
                 </div>
                 <div class="text-caption">
-                  Por: {{ invoice.expand?.uploaded_by?.name || invoice.expand?.uploaded_by?.email || 'Desconhecido' }}
+                  {{ $t('common.by') }}: {{ invoice.expand?.uploaded_by?.name || invoice.expand?.uploaded_by?.email || $t('common.none') }}
                 </div>
                 <div class="q-mt-xs">
                   <q-badge 
@@ -273,7 +273,7 @@
                   icon="edit" 
                   @click.stop="editInvoice(invoice)" 
                 >
-                  <q-tooltip>Editar</q-tooltip>
+                  <q-tooltip>{{ $t('common.edit') }}</q-tooltip>
                 </q-btn>
                 <q-btn 
                   v-if="canDelete"
@@ -284,7 +284,7 @@
                   icon="delete" 
                   @click.stop="deleteInvoice(invoice.id)" 
                 >
-                  <q-tooltip>Eliminar</q-tooltip>
+                  <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
                 </q-btn>
               </div>
             </div>
@@ -297,51 +297,48 @@
     <q-dialog v-model="showUploadDialog" :maximized="$q.screen.lt.md" @hide="resetForm">
       <q-card :style="$q.screen.gt.sm ? 'min-width: 400px' : ''">
         <q-card-section>
-          <div class="text-h6">{{ editingInvoiceId ? 'Editar Fatura' : 'Upload de Fatura' }}</div>
+          <div class="text-h6">{{ editingInvoiceId ? $t('invoices.editInvoice') : $t('invoices.uploadInvoice') }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
           <q-form @submit="uploadInvoice" class="q-gutter-md">
             <!-- Show current file info when editing -->
             <div v-if="editingInvoiceId && currentFileName" class="q-mb-sm">
-              <div class="text-caption text-grey-7">Ficheiro atual:</div>
+              <div class="text-caption text-grey-7">{{ $t('common.file') }} {{ $t('common.current') }}:</div>
               <div class="row items-center q-gutter-xs q-mt-xs">
                 <q-icon :name="getFileIcon(currentFileName)" color="primary" size="sm" />
                 <span class="text-body2">{{ currentFileName }}</span>
-              </div>
-              <div class="text-caption text-grey-6 q-mt-xs">
-                Deixe em branco para manter o ficheiro atual
               </div>
             </div>
 
             <q-file 
               v-model="newInvoice.file" 
-              :label="editingInvoiceId ? 'Substituir Ficheiro (opcional)' : 'Ficheiro da Fatura'" 
+              :label="editingInvoiceId ? $t('documents.selectFile') : $t('common.file')" 
               filled 
               accept=".pdf,.png,.jpg,.jpeg" 
-              :rules="editingInvoiceId ? [] : [val => !!val || 'Ficheiro é obrigatório']"
+              :rules="editingInvoiceId ? [] : [val => !!val || $t('errors.required')]"
               clearable
             >
               <template v-slot:hint v-if="editingInvoiceId">
-                Opcional - selecione apenas se quiser substituir o ficheiro
+                {{ $t('invoices.optionalFile') }}
               </template>
             </q-file>
             <q-input 
               v-model="newInvoice.date" 
               filled 
-              label="Data" 
+              :label="$t('common.date')" 
               type="date" 
-              :rules="[val => !!val || 'Data é obrigatória']" 
+              :rules="[val => !!val || $t('errors.required')]" 
             />
             <q-input 
               v-model="newInvoice.description" 
               filled 
-              label="Descrição" 
+              :label="$t('common.description')" 
             />
             <q-input 
               v-model="newInvoice.amount" 
               filled 
-              label="Valor" 
+              :label="$t('common.value')" 
               type="number" 
               step="0.01" 
             />
@@ -351,7 +348,7 @@
               :options="invoiceTypes"
               option-value="id"
               option-label="name"
-              label="Tipo de Fatura"
+              :label="$t('invoices.invoiceType')"
               filled
               clearable
               emit-value
@@ -373,13 +370,13 @@
                   text-color="white"
                   dense
                 >
-                  {{ scope.opt?.name || 'Selecionar' }}
+                  {{ scope.opt?.name || $t('common.none') }}
                 </q-chip>
               </template>
             </q-select>
 
             <div class="row q-col-gutter-sm q-mb-md">
-              <div class="col-12 text-subtitle2 text-grey-7">Tipo de Movimentação</div>
+              <div class="col-12 text-subtitle2 text-grey-7">{{ $t('invoices.movementType') }}</div>
               <div class="col-12">
                 <q-btn-toggle
                   v-model="newInvoice.is_entrance"
@@ -391,8 +388,8 @@
                   color="grey-2"
                   text-color="grey-9"
                   :options="[
-                    {label: 'Saída', value: false, icon: 'arrow_downward'},
-                    {label: 'Entrada', value: true, icon: 'arrow_upward'}
+                    {label: $t('invoices.outflow'), value: false, icon: 'arrow_downward'},
+                    {label: $t('invoices.inflow'), value: true, icon: 'arrow_upward'}
                   ]"
                 />
               </div>
@@ -400,14 +397,14 @@
 
             <q-checkbox 
               v-model="newInvoice.is_document" 
-              label="Marcar como documento da empresa"
+              :label="$t('invoices.is_document')"
               color="secondary"
             />
             
             <div class="row justify-end q-gutter-sm">
-              <q-btn flat label="Cancelar" v-close-popup @click="resetForm" />
+              <q-btn flat :label="$t('common.cancel')" v-close-popup @click="resetForm" />
               <q-btn 
-                :label="editingInvoiceId ? 'Guardar' : 'Enviar'" 
+                :label="editingInvoiceId ? $t('common.save') : $t('common.submit')" 
                 type="submit" 
                 color="primary" 
                 :loading="uploading" 
@@ -422,7 +419,7 @@
     <q-dialog v-model="showCategoriesDialog" :maximized="$q.screen.lt.md">
       <q-card :style="$q.screen.gt.sm ? 'min-width: 500px' : ''">
         <q-card-section>
-          <div class="text-h6">Gerir Tipos de Fatura</div>
+          <div class="text-h6">{{ $t('invoices.manageTypes') }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -434,15 +431,14 @@
                   v-model="newInvoiceType.name" 
                   filled 
                   dense
-                  label="Nome do Tipo" 
-                  placeholder="Ex: Alimentação"
+                  :label="$t('invoices.typeName')" 
                 />
               </div>
               <div class="col-12 col-sm-4">
                 <q-select
                   v-model="newInvoiceType.color"
                   :options="colorOptions"
-                  label="Cor"
+                  :label="$t('common.category')"
                   filled
                   dense
                   emit-value
@@ -475,7 +471,7 @@
           <q-separator class="q-my-md" />
 
           <!-- Types List -->
-          <div class="text-subtitle2 q-mb-sm">Tipos Existentes</div>
+          <div class="text-subtitle2 q-mb-sm">{{ $t('documents.categories') }}</div>
           <q-list bordered separator>
             <q-item v-for="type in invoiceTypes" :key="type.id">
               <q-item-section avatar>
@@ -493,20 +489,20 @@
                   icon="delete" 
                   @click="deleteInvoiceType(type.id)"
                 >
-                  <q-tooltip>Eliminar</q-tooltip>
+                  <q-tooltip>{{ $t('common.delete') }}</q-tooltip>
                 </q-btn>
               </q-item-section>
             </q-item>
             <q-item v-if="invoiceTypes.length === 0">
               <q-item-section class="text-grey-6 text-center">
-                Nenhum tipo criado
+                {{ $t('invoices.noInvoices') }}
               </q-item-section>
             </q-item>
           </q-list>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Fechar" color="primary" v-close-popup />
+          <q-btn flat :label="$t('common.close')" color="primary" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -519,7 +515,9 @@ import { pb } from 'boot/pocketbase'
 import imageCompression from 'browser-image-compression'
 import { date, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
+const { t, locale } = useI18n()
 const router = useRouter()
 const $q = useQuasar()
 const invoices = ref([])
@@ -574,7 +572,7 @@ const colorOptions = [
 
 const invoiceCategoryOptions = computed(() => {
   return [
-    { label: 'Todos', value: null },
+    { label: t('common.none'), value: null },
     ...invoiceTypes.value.map(type => ({ label: type.name, value: type.id }))
   ]
 })
@@ -614,7 +612,7 @@ const currentMonthLabel = computed(() => {
       const endsOnLast = toDate.getDate() === lastDayOfMonth
 
       if (startsOnFirst && endsOnLast) {
-        const label = fromDate.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' })
+        const label = fromDate.toLocaleDateString(locale.value, { month: 'long', year: 'numeric' })
         return label.charAt(0).toUpperCase() + label.slice(1)
       }
     }
@@ -623,7 +621,7 @@ const currentMonthLabel = computed(() => {
     const to = date.formatDate(selectedDate.value.to, 'DD/MM/YYYY')
     return `${from} - ${to}`
   }
-  return 'Select Date'
+  return t('invoices.filterByDate')
 })
 
 
@@ -635,16 +633,16 @@ const totalSpend = computed(() => {
   }, 0)
 })
 
-const columns = [
-  { name: 'date', label: 'Date', field: row => date.formatDate(row.date, 'DD/MM/YYYY'), align: 'left', sortable: true },
-  { name: 'description', label: 'Description', field: 'description', align: 'left' },
-  { name: 'category', label: 'Tipo', field: 'category', align: 'left' },
-  { name: 'amount', label: 'Amount', field: row => row.amount ? `${row.amount.toFixed(2)} €` : '-', align: 'right', sortable: true },
-  { name: 'file', label: 'File', field: 'file', align: 'center' },
-  { name: 'is_document', label: 'Doc', field: 'is_document', align: 'center' },
-  { name: 'uploaded_by', label: 'Uploaded By', field: row => row.expand?.uploaded_by?.name || row.expand?.uploaded_by?.email || 'Unknown', align: 'left' },
+const columns = computed(() => [
+  { name: 'date', label: t('common.date'), field: row => date.formatDate(row.date, 'DD/MM/YYYY'), align: 'left', sortable: true },
+  { name: 'description', label: t('common.description'), field: 'description', align: 'left' },
+  { name: 'category', label: t('common.type'), field: 'category', align: 'left' },
+  { name: 'amount', label: t('invoices.amount'), field: row => row.amount ? `${row.amount.toFixed(2)} €` : '-', align: 'right', sortable: true },
+  { name: 'file', label: t('common.file'), field: 'file', align: 'center' },
+  { name: 'is_document', label: t('navigation.documents'), field: 'is_document', align: 'center' },
+  { name: 'uploaded_by', label: t('common.by'), field: row => row.expand?.uploaded_by?.name || row.expand?.uploaded_by?.email || t('common.none'), align: 'left' },
   { name: 'actions', label: '', field: 'actions', align: 'right' }
-]
+])
 
 const loadInvoiceTypes = async () => {
   try {
@@ -793,7 +791,7 @@ const uploadInvoice = async () => {
       await pb.collection('invoices').update(editingInvoiceId.value, formData)
       $q.notify({
         color: 'positive',
-        message: 'Fatura atualizada com sucesso',
+        message: t('invoices.updateSuccess'),
         icon: 'check'
       })
     } else {
@@ -802,7 +800,7 @@ const uploadInvoice = async () => {
       await pb.collection('invoices').create(formData)
       $q.notify({
         color: 'positive',
-        message: 'Fatura criada com sucesso',
+        message: t('invoices.uploadSuccess'),
         icon: 'check'
       })
     }
@@ -814,7 +812,7 @@ const uploadInvoice = async () => {
     console.error('Operation failed', e)
     $q.notify({
       color: 'negative',
-      message: editingInvoiceId.value ? 'Falha ao atualizar fatura' : 'Falha ao criar fatura',
+      message: t('errors.general'),
       icon: 'report_problem',
       caption: e.message
     })
@@ -839,9 +837,9 @@ const resetForm = () => {
 
 const deleteInvoice = (id) => {
   $q.dialog({
-    title: 'Confirmar',
-    message: 'Tem a certeza que deseja eliminar esta fatura?',
-    cancel: true,
+    title: t('common.confirm'),
+    message: t('invoices.confirmDelete'),
+    cancel: t('common.cancel'),
     persistent: true
   }).onOk(async () => {
     try {
@@ -849,14 +847,14 @@ const deleteInvoice = (id) => {
       loadInvoices()
       $q.notify({
         color: 'positive',
-        message: 'Fatura eliminada com sucesso',
+        message: t('common.deleteSuccess'),
         icon: 'check'
       })
     } catch (e) {
-      console.error('Error deleting invoice', e)
+      console.error('Error deleting', e)
       $q.notify({
         color: 'negative',
-        message: 'Falha ao eliminar fatura',
+        message: t('errors.general'),
         icon: 'report_problem'
       })
     }
@@ -922,7 +920,7 @@ const addInvoiceType = async () => {
     await pb.collection('invoice_types').create(newInvoiceType.value)
     $q.notify({
       color: 'positive',
-      message: 'Tipo criado com sucesso',
+      message: t('success.updated'),
       icon: 'check'
     })
     newInvoiceType.value = { name: '', color: 'blue' }
@@ -931,7 +929,7 @@ const addInvoiceType = async () => {
     console.error('Error creating invoice type', e)
     $q.notify({
       color: 'negative',
-      message: 'Falha ao criar tipo',
+      message: t('errors.general'),
       icon: 'report_problem'
     })
   } finally {
@@ -941,9 +939,9 @@ const addInvoiceType = async () => {
 
 const deleteInvoiceType = (id) => {
   $q.dialog({
-    title: 'Confirmar',
-    message: 'Tem a certeza que deseja eliminar este tipo?',
-    cancel: true,
+    title: t('common.confirm'),
+    message: t('documents.confirmDelete'),
+    cancel: t('common.cancel'),
     persistent: true
   }).onOk(async () => {
     try {
@@ -951,14 +949,14 @@ const deleteInvoiceType = (id) => {
       loadInvoiceTypes()
       $q.notify({
         color: 'positive',
-        message: 'Tipo eliminado com sucesso',
+        message: t('common.deleteSuccess'),
         icon: 'check'
       })
     } catch (e) {
       console.error('Error deleting invoice type', e)
       $q.notify({
         color: 'negative',
-        message: 'Falha ao eliminar tipo',
+        message: t('errors.general'),
         icon: 'report_problem'
       })
     }

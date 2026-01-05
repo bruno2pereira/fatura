@@ -7,9 +7,9 @@
           <!-- Título -->
           <div class="col-12 col-md-auto">
             <div class="row items-center q-gutter-x-sm">
-                Documentos
+                {{ $t('documents.title') }}
               <q-chip outline color="secondary" icon="folder" class="text-weight-bold">
-                Total: {{ filteredDocuments.length }}
+                {{ $t('invoices.total') }}: {{ filteredDocuments.length }}
               </q-chip>
             </div>
           </div>
@@ -36,17 +36,17 @@
             <div class="row items-center q-gutter-x-md">
               <q-toggle
                 v-model="showSubcategoryDocs"
-                label="Incluir sub-pastas"
+                :label="$t('documents.includeSubfolders')"
                 color="secondary"
                 dense
                 class="q-mr-sm"
               >
-                <q-tooltip>Mostrar documentos desta pasta e de todas as sub-pastas</q-tooltip>
+                <q-tooltip>{{ $t('documents.includeSubfolders') }}</q-tooltip>
               </q-toggle>
 
               <q-input
                 v-model="searchQuery"
-                label="Procurar em tudo"
+                :label="$t('common.search')"
                 filled
                 dense
                 clearable
@@ -67,22 +67,22 @@
                 unelevated 
                 color="secondary" 
                 icon="add" 
-                :label="$q.screen.gt.xs ? 'Novo' : undefined"
+                :label="$q.screen.gt.xs ? $t('common.add') : undefined"
                 @click="showUploadDialog = true" 
               >
-                <q-tooltip>Novo Documento</q-tooltip>
+                <q-tooltip>{{ $t('documents.addDocument') }}</q-tooltip>
               </q-btn>
               <q-btn 
                 unelevated 
                 color="primary" 
                 icon="account_tree" 
-                :label="$q.screen.gt.xs ? 'Pastas' : undefined"
+                :label="$q.screen.gt.xs ? $t('documents.categories') : undefined"
                 @click="showCategoriesDialog = true" 
               >
-                <q-tooltip>Gerir Árvore de Pastas</q-tooltip>
+                <q-tooltip>{{ $t('documents.categories') }}</q-tooltip>
               </q-btn>
               <q-btn flat round color="primary" icon="arrow_back" @click="goBack">
-                <q-tooltip>Voltar</q-tooltip>
+                <q-tooltip>{{ $t('common.back') }}</q-tooltip>
               </q-btn>
             </div>
           </div>
@@ -95,7 +95,7 @@
       <!-- Loading State -->
       <div v-if="loading" class="col-12 text-center q-pa-xl">
         <q-spinner color="secondary" size="3em" />
-        <div class="q-mt-md">A carregar...</div>
+        <div class="q-mt-md">{{ $t('common.loading') }}</div>
       </div>
 
       <!-- Folders Section -->
@@ -122,10 +122,10 @@
       <!-- Files Section -->
       <div class="col-12">
         <div class="text-subtitle2 q-mb-sm q-mt-md" v-if="!searchQuery && filteredDocuments.length > 0">
-          Ficheiros nesta pasta
+          {{ $t('documents.filesInFolder') }}
         </div>
         <div class="text-subtitle2 q-mb-sm q-mt-md" v-else-if="searchQuery">
-          Resultados da pesquisa
+          {{ $t('documents.searchResults') }}
         </div>
 
         <q-card class="modern-card">
@@ -135,7 +135,7 @@
             row-key="id"
             :loading="loading"
             flat
-            no-data-label="Nenhum ficheiro encontrado nesta pasta"
+            :no-data-label="$t('documents.noDocumentsInFolder')"
             :rows-per-page-options="[10, 20, 50]"
           >
           <template v-slot:body="props">
@@ -164,7 +164,7 @@
                     <q-btn flat round dense color="primary" icon="edit" @click.stop="editDocument(props.row)" />
                     <q-btn flat round dense color="negative" icon="delete" @click.stop="deleteDocument(props.row)" />
                   </div>
-                  <div v-else class="text-caption">Fatura</div>
+                  <div v-else class="text-caption">{{ $t('invoices.invoice') }}</div>
                 </template>
                 <template v-else>
                   {{ col.value }}
@@ -182,11 +182,11 @@
         class="col-12 text-center q-pa-xl"
       >
         <q-icon name="folder_open" size="4rem" color="grey" />
-        <div class="q-mt-md text-h6">Esta pasta está vazia</div>
+        <div class="q-mt-md text-h6">{{ $t('documents.emptyState') }}</div>
         <q-btn 
           flat 
           color="secondary" 
-          label="Adicionar Documento" 
+          :label="$t('documents.addDocument')" 
           icon="add" 
           class="q-mt-sm" 
           @click="showUploadDialog = true" 
@@ -198,9 +198,9 @@
     <q-dialog v-model="showUploadDialog" :maximized="$q.screen.lt.md" @hide="resetForm">
       <q-card :style="$q.screen.gt.sm ? 'min-width: 500px' : ''">
         <q-card-section>
-          <div class="text-h6">{{ editingDocumentId ? 'Editar Documento' : 'Novo Documento' }}</div>
+          <div class="text-h6">{{ editingDocumentId ? $t('documents.editDocument') : $t('documents.addDocument') }}</div>
           <div class="text-caption" v-if="!editingDocumentId">
-            A carregar na pasta: {{ breadcrumbs[breadcrumbs.length - 1].name }}
+            {{ $t('documents.folder') }}: {{ breadcrumbs[breadcrumbs.length - 1].name }}
           </div>
         </q-card-section>
 
@@ -209,14 +209,14 @@
             <q-input 
               v-model="newDocument.title" 
               filled 
-              label="Título" 
-              :rules="[val => !!val || 'Título é obrigatório']"
+              :label="$t('common.name')" 
+              :rules="[val => !!val || $t('errors.required')]"
             />
 
             <q-input 
               v-model="newDocument.description" 
               filled 
-              label="Descrição" 
+              :label="$t('common.description')" 
               type="textarea"
               rows="3"
             />
@@ -224,7 +224,7 @@
             <q-select
               v-model="newDocument.category"
               :options="categoryOptions"
-              label="Pasta de Destino"
+              :label="$t('documents.folder')"
               filled
               emit-value
               map-options
@@ -236,10 +236,10 @@
 
             <q-file 
               v-model="newDocument.file" 
-              :label="editingDocumentId ? 'Substituir Ficheiro (opcional)' : 'Ficheiro'" 
+              :label="editingDocumentId ? $t('documents.selectFile') : $t('common.file')" 
               filled 
               accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx"
-              :rules="editingDocumentId ? [] : [val => !!val || 'Ficheiro é obrigatório']"
+              :rules="editingDocumentId ? [] : [val => !!val || $t('errors.required')]"
               clearable
             >
               <template v-slot:prepend>
@@ -248,9 +248,9 @@
             </q-file>
 
             <div class="row justify-end q-gutter-sm q-mt-md">
-              <q-btn flat label="Cancelar" v-close-popup @click="resetForm" />
+              <q-btn flat :label="$t('common.cancel')" v-close-popup @click="resetForm" />
               <q-btn 
-                :label="editingDocumentId ? 'Guardar' : 'Criar'" 
+                :label="editingDocumentId ? $t('common.save') : $t('common.add')" 
                 type="submit" 
                 color="secondary" 
                 :loading="uploading" 
@@ -265,7 +265,7 @@
     <q-dialog v-model="showCategoriesDialog" :maximized="$q.screen.lt.md">
       <q-card :style="$q.screen.gt.sm ? 'min-width: 600px' : ''">
         <q-card-section class="bg-primary text-white row items-center">
-          <div class="text-h6">Gestão de Pastas (Árvore)</div>
+          <div class="text-h6">{{ $t('documents.categories') }}</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -274,14 +274,14 @@
           <div class="row q-col-gutter-md">
             <!-- Form to Add/Edit Category -->
             <div class="col-12 col-md-5">
-              <div class="text-subtitle2 q-mb-sm">Nova Pasta / Sub-pasta</div>
+              <div class="text-subtitle2 q-mb-sm">{{ $t('documents.addFolder') }}</div>
               <q-form @submit="addCategory" class="q-gutter-sm">
-                <q-input v-model="newCategory.name" filled dense label="Nome da Pasta" />
+                <q-input v-model="newCategory.name" filled dense :label="$t('documents.folderName')" />
                 
                 <q-select
                   v-model="newCategory.parent"
                   :options="categoryOptions"
-                  label="Pasta Pai"
+                  :label="$t('documents.parentFolder')"
                   filled
                   dense
                   emit-value
@@ -291,7 +291,7 @@
                 <q-select
                   v-model="newCategory.color"
                   :options="colorOptions"
-                  label="Cor"
+                  :label="$t('common.color')"
                   filled
                   dense
                   emit-value
@@ -301,7 +301,7 @@
                 <q-btn 
                   type="submit" 
                   color="secondary" 
-                  label="Criar Pasta" 
+                  :label="$t('documents.addFolder')" 
                   icon="add" 
                   :loading="addingCategory"
                   class="full-width"
@@ -311,7 +311,7 @@
 
             <!-- Category Tree View -->
             <div class="col-12 col-md-7">
-              <div class="text-subtitle2 q-mb-sm">Estrutura Atual</div>
+              <div class="text-subtitle2 q-mb-sm">{{ $t('documents.currentStructure') }}</div>
               <div class="scroll" style="max-height: 400px">
                 <q-tree
                   :nodes="categoryTree"
@@ -347,7 +347,9 @@ import { date, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import imageCompression from 'browser-image-compression'
 import { useAuth } from 'src/composables/useAuth'
+import { useI18n } from 'vue-i18n'
 
+const { t, locale } = useI18n()
 const router = useRouter()
 const $q = useQuasar()
 const { checkAdmin } = useAuth()
@@ -377,16 +379,16 @@ const newCategory = ref({
   parent: null
 })
 
-const colorOptions = [
-  { label: 'Azul', value: 'blue' },
-  { label: 'Verde', value: 'green' },
-  { label: 'Vermelho', value: 'red' },
-  { label: 'Laranja', value: 'orange' },
-  { label: 'Roxo', value: 'purple' },
-  { label: 'Rosa', value: 'pink' },
-  { label: 'Amarelo', value: 'amber' },
-  { label: 'Cinza', value: 'grey' }
-]
+const colorOptions = computed(() => [
+  { label: t('languages.pt-PT').includes('Português') || locale.value === 'pt-PT' ? 'Azul' : 'Blue', value: 'blue' },
+  { label: t('languages.pt-PT').includes('Português') || locale.value === 'pt-PT' ? 'Verde' : 'Green', value: 'green' },
+  { label: t('languages.pt-PT').includes('Português') || locale.value === 'pt-PT' ? 'Vermelho' : 'Red', value: 'red' },
+  { label: t('languages.pt-PT').includes('Português') || locale.value === 'pt-PT' ? 'Laranja' : 'Orange', value: 'orange' },
+  { label: t('languages.pt-PT').includes('Português') || locale.value === 'pt-PT' ? 'Roxo' : 'Purple', value: 'purple' },
+  { label: t('languages.pt-PT').includes('Português') || locale.value === 'pt-PT' ? 'Rosa' : 'Pink', value: 'pink' },
+  { label: t('languages.pt-PT').includes('Português') || locale.value === 'pt-PT' ? 'Amarelo' : 'Yellow', value: 'amber' },
+  { label: t('languages.pt-PT').includes('Português') || locale.value === 'pt-PT' ? 'Cinza' : 'Grey', value: 'grey' }
+])
 
 // Constrói a árvore de categorias para o q-tree
 const categoryTree = computed(() => {
@@ -413,7 +415,7 @@ const currentSubCategories = computed(() => {
 
 // Breadcrumbs para navegação
 const breadcrumbs = computed(() => {
-  const crumbs = [{ id: null, name: 'Raiz' }]
+  const crumbs = [{ id: null, name: t('common.root') }]
   if (!currentCategoryId.value) return crumbs
 
   const findPath = (targetId, path = []) => {
@@ -430,7 +432,7 @@ const breadcrumbs = computed(() => {
 
 const categoryOptions = computed(() => {
   return [
-    { label: 'Raiz (Sem Categoria)', value: null },
+    { label: `${t('common.none')} (${t('documents.folder')})`, value: null },
     ...categories.value.map(cat => ({ label: cat.name, value: cat.id }))
   ]
 })
@@ -477,13 +479,13 @@ const getAllChildrenIds = (parentId) => {
   return ids
 }
 
-const columns = [
-  { name: 'title', label: 'Título', field: 'title', align: 'left', sortable: true },
-  { name: 'description', label: 'Descrição', field: 'description', align: 'left' },
-  { name: 'file', label: 'Ficheiro', field: 'file', align: 'center' },
-  { name: 'created', label: 'Data', field: row => date.formatDate(row.created, 'DD/MM/YYYY'), align: 'left', sortable: true },
+const columns = computed(() => [
+  { name: 'title', label: t('common.name'), field: 'title', align: 'left', sortable: true },
+  { name: 'description', label: t('common.description'), field: 'description', align: 'left' },
+  { name: 'file', label: t('common.file'), field: 'file', align: 'center' },
+  { name: 'created', label: t('common.date'), field: row => date.formatDate(row.created, 'DD/MM/YYYY'), align: 'left', sortable: true },
   { name: 'actions', label: '', field: 'actions', align: 'right' }
-]
+])
 
 const loadCategories = async () => {
   try {
@@ -522,8 +524,8 @@ const loadDocuments = async () => {
         ...inv,
         type: 'invoice',
         category: matchedCat?.id || null,
-        title: inv.description || 'Fatura',
-        description: `${inv.is_entrance ? '(Entrada)' : '(Saída)'} Valor: ${inv.amount?.toFixed(2)}€ - Data: ${date.formatDate(inv.date, 'DD/MM/YYYY')}`,
+        title: inv.description || t('invoices.invoice'),
+        description: `${inv.is_entrance ? `(${t('invoices.inflow')})` : `(${t('invoices.outflow')})`} ${t('common.value')}: ${inv.amount?.toFixed(2)}€ - ${t('common.date')}: ${date.formatDate(inv.date, 'DD/MM/YYYY')}`,
         expand: {
           category: matchedCat || (inv.expand?.invoice_type ? {
             name: inv.expand.invoice_type.name,
@@ -586,14 +588,14 @@ const saveDocument = async () => {
       await pb.collection('documents').update(editingDocumentId.value, formData)
       $q.notify({
         color: 'positive',
-        message: 'Documento atualizado com sucesso',
+        message: t('documents.updateSuccess'),
         icon: 'check'
       })
     } else {
       await pb.collection('documents').create(formData)
       $q.notify({
         color: 'positive',
-        message: 'Documento criado com sucesso',
+        message: t('documents.uploadSuccess'),
         icon: 'check'
       })
     }
@@ -605,7 +607,7 @@ const saveDocument = async () => {
     console.error('Operation failed', e)
     $q.notify({
       color: 'negative',
-      message: editingDocumentId.value ? 'Falha ao atualizar documento' : 'Falha ao criar documento',
+      message: editingDocumentId.value ? t('documents.uploadError') : t('documents.uploadError'),
       icon: 'report_problem',
       caption: e.message
     })
@@ -640,9 +642,9 @@ const editDocument = (doc) => {
 
 const deleteDocument = (doc) => {
   $q.dialog({
-    title: 'Confirmar',
-    message: `Tem a certeza que deseja eliminar este ${doc.type === 'invoice' ? 'fatura' : 'documento'}?`,
-    cancel: true,
+    title: t('common.confirm'),
+    message: t('documents.confirmDelete'),
+    cancel: t('common.cancel'),
     persistent: true
   }).onOk(async () => {
     try {
@@ -651,14 +653,14 @@ const deleteDocument = (doc) => {
       loadDocuments()
       $q.notify({
         color: 'positive',
-        message: 'Eliminado com sucesso',
+        message: t('common.deleteSuccess'),
         icon: 'check'
       })
     } catch (e) {
       console.error('Error deleting', e)
       $q.notify({
         color: 'negative',
-        message: 'Falha ao eliminar',
+        message: t('documents.deleteError'),
         icon: 'report_problem'
       })
     }
@@ -676,7 +678,7 @@ const addCategory = async () => {
     })
     $q.notify({
       color: 'positive',
-      message: 'Pasta criada com sucesso',
+      message: t('success.updated'),
       icon: 'check'
     })
     newCategory.value = { name: '', color: 'blue', parent: newCategory.value.parent }
@@ -685,7 +687,7 @@ const addCategory = async () => {
     console.error('Error creating category', e)
     $q.notify({
       color: 'negative',
-      message: 'Falha ao criar pasta',
+      message: t('errors.general'),
       icon: 'report_problem'
     })
   } finally {
@@ -695,9 +697,9 @@ const addCategory = async () => {
 
 const deleteCategory = (id) => {
   $q.dialog({
-    title: 'Confirmar',
-    message: 'Tem a certeza que deseja eliminar esta pasta? Ficheiros nesta pasta ficarão órfãos.',
-    cancel: true,
+    title: t('common.confirm'),
+    message: t('documents.confirmDelete'),
+    cancel: t('common.cancel'),
     persistent: true
   }).onOk(async () => {
     try {
@@ -706,14 +708,14 @@ const deleteCategory = (id) => {
       loadCategories()
       $q.notify({
         color: 'positive',
-        message: 'Pasta eliminada com sucesso',
+        message: t('common.deleteSuccess'),
         icon: 'check'
       })
     } catch (e) {
       console.error('Error deleting category', e)
       $q.notify({
         color: 'negative',
-        message: 'Falha ao eliminar pasta',
+        message: t('documents.deleteError'),
         icon: 'report_problem'
       })
     }

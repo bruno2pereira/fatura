@@ -1,6 +1,7 @@
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { pb } from 'boot/pocketbase'
+import { i18n } from 'boot/i18n'
 
 export function useAuth() {
   const router = useRouter()
@@ -23,7 +24,7 @@ export function useAuth() {
       if (!isAdmin) {
         $q.notify({
           color: 'negative',
-          message: 'Acesso negado. Apenas administradores podem aceder a esta página.',
+          message: i18n.global.t('errors.accessDenied'),
           icon: 'report_problem'
         })
         router.push('/')
