@@ -103,10 +103,7 @@ const goToBalance = () => {
   router.push('/balance')
 }
 
-const logout = () => {
-  pb.authStore.clear()
-  router.push('/login')
-}
+
 
 const fetchCurrentUser = async () => {
   if (pb.authStore.isValid && pb.authStore.record) {
