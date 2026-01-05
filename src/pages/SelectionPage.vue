@@ -74,16 +74,7 @@
         </div>
       </div>
 
-      <!-- Logout Button -->
-      <div class="text-center q-mt-xl">
-        <q-btn 
-          flat 
-          color="white" 
-          icon="logout" 
-          :label="$t('auth.logout')" 
-          @click="logout"
-        />
-      </div>
+    
     </div>
   </q-page>
 </template>
