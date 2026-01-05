@@ -167,6 +167,7 @@
     "lastName": "Last Name",
     "phone": "Phone",
     "address": "Address",
+    "settings": "Settings",
     "updateSuccess": "Profile updated successfully"
   },
   "errors": {

@@ -167,6 +167,7 @@
     "lastName": "Último Nome",
     "phone": "Telefone",
     "address": "Morada",
+    "settings": "Definições",
     "updateSuccess": "Perfil atualizado com sucesso"
   },
   "errors": {

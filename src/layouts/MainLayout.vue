@@ -35,7 +35,7 @@
                    <q-item-section avatar>
                      <q-icon name="settings" />
                    </q-item-section>
-                   <q-item-section class="text-weight-medium">{{ $t('auth.settings') }}</q-item-section>
+                   <q-item-section class="text-weight-medium">{{ $t('profile.settings') }}</q-item-section>
                  </q-item>
                  <q-separator />
                  <q-item clickable v-close-popup @click="logout" class="text-negative q-py-md">
