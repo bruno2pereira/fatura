@@ -2,8 +2,8 @@
   <q-page padding class="container-limit q-mx-auto">
     <div v-if="post">
        <q-breadcrumbs class="q-mb-md text-grey-7" active-color="primary">
-        <q-breadcrumbs-el label="Início" to="/" />
-        <q-breadcrumbs-el label="Blog" to="/blog" />
+        <q-breadcrumbs-el :label="$t('public.blog.home')" to="/" />
+        <q-breadcrumbs-el :label="$t('public.blog.blog')" to="/blog" />
         <q-breadcrumbs-el :label="post.title" />
       </q-breadcrumbs>
 
@@ -12,7 +12,7 @@
         <q-icon name="schedule" class="q-mr-xs" />
         <span class="q-mr-md">{{ post.date }}</span>
         <q-icon name="person" class="q-mr-xs" />
-        <span>Equipa Editorial</span>
+        <span>{{ $t('public.blog.author') }}</span>
       </div>
 
       <!-- Top Ad -->
@@ -26,9 +26,9 @@
       <q-separator class="q-my-xl" />
 
       <div class="text-center">
-        <h3 class="text-h5 text-weight-bold q-mb-md">Gostou deste artigo?</h3>
-        <p class="q-mb-md">Comece hoje mesmo a organizar as suas finanças.</p>
-        <q-btn color="primary" label="Criar Conta Grátis" to="/login" />
+        <h3 class="text-h5 text-weight-bold q-mb-md">{{ $t('public.blog.likedArticle') }}</h3>
+        <p class="q-mb-md">{{ $t('public.blog.likedArticleDesc') }}</p>
+        <q-btn color="primary" :label="$t('public.blog.createAccount')" to="/login" />
       </div>
     </div>
     <div v-else class="text-center q-pa-xl">
@@ -51,9 +51,6 @@ const loadPost = () => {
   const found = blogPosts.find(p => p.slug === slug)
   if (found) {
     post.value = found
-  } else {
-    // Redirect to 404 or Blog Index if not found
-    // router.push('/blog')
   }
 }
 

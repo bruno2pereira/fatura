@@ -8,31 +8,30 @@
 
       <div class="container-limit q-mx-auto row items-center q-px-md relative-position z-top">
         <div class="col-12 col-md-6 q-pr-md-xl text-center text-md-left">
-          <div class="text-overline text-primary text-weight-bold tracking-widest q-mb-sm">FINANÇAS PESSOAIS 2.0</div>
+          <div class="text-overline text-primary text-weight-bold tracking-widest q-mb-sm">{{ $t('public.landing.overline') }}</div>
           <h1 class="text-h2 text-weight-bolder q-mb-md text-dark tight-line-height">
-            As suas finanças.<br/>
-            <span class="text-gradient-primary">À sua maneira.</span>
+            {{ $t('public.landing.headline') }}<br/>
+            <span class="text-gradient-primary">{{ $t('public.landing.headlineHighlight') }}</span>
           </h1>
           <p class="text-h6 text-weight-regular q-mb-xl text-grey-7" style="max-width: 500px; line-height: 1.6;">
-            Organize a sua vida financeira e pessoal sem automações invasivas. 
-            Controlo total, privacidade absoluta e design premium.
+            {{ $t('public.landing.description') }}
           </p>
           <div class="q-gutter-md row justify-center justify-md-start">
-            <q-btn unelevated color="primary" size="lg" label="Começar Gratuitamente" to="/login" no-caps class="shadow-lg hover-lift" />
-            <q-btn outline color="primary" size="lg" label="Saber Mais" @click="scrollToFeatures" no-caps class="bg-white" />
+            <q-btn unelevated color="primary" size="lg" :label="$t('public.landing.ctaStart')" to="/login" no-caps class="shadow-lg hover-lift" />
+            <q-btn outline color="primary" size="lg" :label="$t('public.landing.ctaLearnMore')" @click="scrollToFeatures" no-caps class="bg-white" />
           </div>
-          
+
           <div class="row items-center q-mt-lg text-grey-6 text-caption justify-center justify-md-start">
-            <q-icon name="check_circle" color="green" class="q-mr-xs" /> Sem cartão de crédito
-            <q-icon name="check_circle" color="green" class="q-ml-md q-mr-xs" /> 100% Gratuito
+            <q-icon name="check_circle" color="green" class="q-mr-xs" /> {{ $t('public.landing.noCard') }}
+            <q-icon name="check_circle" color="green" class="q-ml-md q-mr-xs" /> {{ $t('public.landing.free') }}
           </div>
         </div>
-        
+
         <div class="col-12 col-md-6 q-mt-xl q-mt-md-none text-center perspective-container">
           <!-- Floating Dashboard Mockup -->
           <div class="floating-dashboard glass q-pa-sm rounded-xl shadow-2xl">
-             <q-img 
-              src="https://cdn.quasar.dev/img/layout-gallery/twitter-web.png" 
+             <q-img
+              src="https://cdn.quasar.dev/img/layout-gallery/twitter-web.png"
               class="rounded-xl"
               style="min-height: 300px; max-width: 100%;"
               fit="cover position-top"
@@ -41,7 +40,7 @@
                  <!-- Mock UI Overlay -->
                  <div class="text-white text-center">
                     <q-icon name="analytics" size="80px" />
-                    <div class="text-h6 q-mt-sm">Dashboard Seguro</div>
+                    <div class="text-h6 q-mt-sm">{{ $t('public.landing.dashboardSecure') }}</div>
                  </div>
               </div>
             </q-img>
@@ -58,19 +57,18 @@
     <!-- Features Section (Diferencial Competitivo) -->
     <section id="features" class="section-padding bg-white relative-position">
        <div class="container-limit q-mx-auto q-px-md text-center">
-        <div class="text-overline text-secondary text-weight-bold q-mb-sm">PORQUÊ ESCOLHER-NOS</div>
-        <h2 class="text-h3 text-weight-bold text-dark q-mb-xl">O método manual, <span class="text-primary">Evoluído</span>.</h2>
-        
+        <div class="text-overline text-secondary text-weight-bold q-mb-sm">{{ $t('public.landing.featuresOverline') }}</div>
+        <h2 class="text-h3 text-weight-bold text-dark q-mb-xl">{{ $t('public.landing.featuresHeadline') }} <span class="text-primary">{{ $t('public.landing.featuresHighlight') }}</span>.</h2>
+
         <div class="row q-col-gutter-xl">
           <div class="col-12 col-md-4">
             <div class="feature-card q-pa-lg rounded-xl transition-all hover-lift">
               <div class="icon-box bg-blue-1 text-blue-9 q-mb-md">
                 <q-icon name="security" size="32px" />
               </div>
-              <h3 class="text-h5 text-weight-bold q-mb-sm text-dark">Privacidade Absoluta</h3>
+              <h3 class="text-h5 text-weight-bold q-mb-sm text-dark">{{ $t('public.landing.feature1Title') }}</h3>
               <p class="text-grey-6 text-body1">
-                Sem conexões bancárias. O que acontece no seu banco, fica no seu banco. 
-                Aqui só entra o que você decide registar.
+                {{ $t('public.landing.feature1Desc') }}
               </p>
             </div>
           </div>
@@ -79,10 +77,9 @@
                <div class="icon-box bg-purple-1 text-purple-9 q-mb-md">
                 <q-icon name="psychology" size="32px" />
               </div>
-              <h3 class="text-h5 text-weight-bold q-mb-sm text-dark">Controlo Consciente</h3>
+              <h3 class="text-h5 text-weight-bold q-mb-sm text-dark">{{ $t('public.landing.feature2Title') }}</h3>
               <p class="text-grey-6 text-body1">
-                Ao registar cada despesa, ganha consciência real dos seus hábitos. 
-                Torne-se o CEO das suas finanças, não um espectador.
+                {{ $t('public.landing.feature2Desc') }}
               </p>
             </div>
           </div>
@@ -91,10 +88,9 @@
                <div class="icon-box bg-pink-1 text-pink-9 q-mb-md">
                 <q-icon name="tune" size="32px" />
               </div>
-              <h3 class="text-h5 text-weight-bold q-mb-sm text-dark">Flexibilidade Total</h3>
+              <h3 class="text-h5 text-weight-bold q-mb-sm text-dark">{{ $t('public.landing.feature3Title') }}</h3>
               <p class="text-grey-6 text-body1">
-                Crie categorias e pastas que fazem sentido para a sua vida. 
-                Organize faturas, garantias e despesas num só lugar.
+                {{ $t('public.landing.feature3Desc') }}
               </p>
             </div>
           </div>
@@ -108,15 +104,15 @@
         <div class="row items-center justify-center q-gutter-x-xl text-grey-5 trust-icons">
            <div class="row items-center column-xs">
              <q-icon name="lock" size="40px" class="q-mr-sm" />
-             <span class="text-h6 text-dark font-weight-medium">Encriptação SSL</span>
+             <span class="text-h6 text-dark font-weight-medium">{{ $t('public.landing.trustSsl') }}</span>
            </div>
            <div class="row items-center column-xs">
              <q-icon name="block" size="40px" class="q-mr-sm" />
-             <span class="text-h6 text-dark font-weight-medium">Sem Venda de Dados</span>
+             <span class="text-h6 text-dark font-weight-medium">{{ $t('public.landing.trustNoData') }}</span>
            </div>
            <div class="row items-center column-xs">
              <q-icon name="euro_symbol" size="40px" class="q-mr-sm" />
-             <span class="text-h6 text-dark font-weight-medium">100% Gratuito</span>
+             <span class="text-h6 text-dark font-weight-medium">{{ $t('public.landing.trustFree') }}</span>
            </div>
         </div>
       </div>
@@ -131,13 +127,13 @@
     <section class="section-padding bg-dark text-white text-center relative-position overflow-hidden">
       <!-- Glow effect -->
       <div class="absolute-center bg-primary" style="width: 300px; height: 300px; filter: blur(150px); opacity: 0.2"></div>
-      
+
       <div class="container-limit q-mx-auto q-px-md relative-position z-top">
-        <h2 class="text-h3 text-weight-bold q-mb-md">Pronto para organizar a sua vida?</h2>
+        <h2 class="text-h3 text-weight-bold q-mb-md">{{ $t('public.landing.ctaHeadline') }}</h2>
         <p class="text-h6 q-mb-xl text-grey-4" style="max-width: 600px; margin: 0 auto 2rem;">
-          Junte-se a milhares de pessoas que recuperaram o controlo das suas finanças.
+          {{ $t('public.landing.ctaDescription') }}
         </p>
-        <q-btn unelevated color="white" text-color="dark" size="xl" label="Criar Conta Grátis" to="/login" no-caps class="shadow-lg hover-scale" />
+        <q-btn unelevated color="white" text-color="dark" size="xl" :label="$t('public.landing.ctaButton')" to="/login" no-caps class="shadow-lg hover-scale" />
       </div>
     </section>
 

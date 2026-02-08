@@ -1,14 +1,14 @@
 <template>
   <q-page padding class="container-limit q-mx-auto">
     <div class="text-center q-mb-xl">
-      <h1 class="text-h3 text-weight-bold q-mb-md">Blog & Literacia Financeira</h1>
-      <p class="text-h6 text-grey-7">Dicas, guias e reflexões sobre como dominar o seu dinheiro.</p>
+      <h1 class="text-h3 text-weight-bold q-mb-md">{{ $t('public.blog.title') }}</h1>
+      <p class="text-h6 text-grey-7">{{ $t('public.blog.subtitle') }}</p>
     </div>
 
     <div class="row q-col-gutter-lg">
       <div v-for="post in blogPosts" :key="post.id" class="col-12 col-md-6">
         <q-card class="modern-card full-height column no-wrap hover-scale cursor-pointer" @click="$router.push('/blog/' + post.slug)">
-          
+
           <!-- Mock Cover Image -->
           <div class="h-48 bg-gradient-primary relative-position overflow-hidden">
              <div class="absolute-full flex flex-center">
@@ -27,12 +27,12 @@
           </q-card-section>
 
           <q-card-actions class="q-pa-md q-mt-auto">
-             <q-btn flat color="primary" label="Ler Artigo" icon-right="arrow_forward" no-caps class="full-width text-weight-bold" />
+             <q-btn flat color="primary" :label="$t('public.blog.readArticle')" icon-right="arrow_forward" no-caps class="full-width text-weight-bold" />
           </q-card-actions>
         </q-card>
       </div>
     </div>
-    
+
      <div class="container-limit q-mx-auto q-mt-xl">
       <AdSenseBlock slotId="blog-index-bottom" />
     </div>

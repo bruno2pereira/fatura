@@ -2,15 +2,15 @@
   <div v-if="!accepted" class="cookie-consent fixed-bottom bg-grey-10 text-white q-pa-md z-max shadow-up-2">
     <div class="row items-center justify-between container-limit q-mx-auto">
       <div class="col-12 col-md-8">
-        <div class="text-bold q-mb-xs">Este site utiliza cookies 🍪</div>
+        <div class="text-bold q-mb-xs">{{ $t('public.cookies.title') }} 🍪</div>
         <div class="text-caption">
-          Nós e os nossos parceiros (Google AdSense) utilizamos cookies para personalizar conteúdos e anúncios, fornecer funcionalidades de redes sociais e analisar o nosso tráfego.
-          <router-link to="/legal/privacy" class="text-primary text-weight-bold">Saiba mais</router-link>.
+          {{ $t('public.cookies.description') }}
+          <router-link to="/legal/privacy" class="text-primary text-weight-bold">{{ $t('public.cookies.learnMore') }}</router-link>.
         </div>
       </div>
       <div class="col-12 col-md-4 text-right q-mt-sm q-mt-md-none">
-        <q-btn flat color="white" label="Recusar" @click="decline" class="q-mr-sm" />
-        <q-btn unelevated color="primary" label="Aceitar Todos" @click="accept" />
+        <q-btn flat color="white" :label="$t('public.cookies.decline')" @click="decline" class="q-mr-sm" />
+        <q-btn unelevated color="primary" :label="$t('public.cookies.acceptAll')" @click="accept" />
       </div>
     </div>
   </div>
@@ -19,7 +19,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-const accepted = ref(true) 
+const accepted = ref(true)
 
 const STORAGE_KEY = 'cookie_consent_status'
 
