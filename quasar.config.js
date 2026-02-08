@@ -37,7 +37,7 @@ export default defineConfig((/* ctx */) => {
         node: 'node20',
       },
 
-      vueRouterMode: 'hash', // available values: 'hash', 'history'
+      vueRouterMode: 'history', // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
@@ -151,9 +151,9 @@ export default defineConfig((/* ctx */) => {
         clientsClaim: true
       },
       manifest: {
-        name: 'NeonRetreat',
-        short_name: 'NeonRetreat',
-        description: 'Faça a gestão da sua empresa com estilo',
+        name: 'Toosag',
+        short_name: 'Toosag',
+        description: 'Finanças Pessoais e Documentos. À sua maneira.',
         display: 'standalone',
         orientation: 'portrait',
         background_color: '#ffffff',
@@ -238,7 +238,7 @@ export default defineConfig((/* ctx */) => {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'NeonRetreat',
+        appId: 'Toosag',
       },
     },
 

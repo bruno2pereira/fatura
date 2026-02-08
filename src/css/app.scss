@@ -1,32 +1,71 @@
 // app global css in SCSS form
 
-.bg-gradient-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+// :root variables for consistent theming
+:root {
+  --primary: #667eea;
+  --secondary: #764ba2;
+  --accent: #ff0080;
+  --dark-bg: #0f172a;
+  --light-bg: #f8fafc;
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
+body {
+  background-color: var(--light-bg);
+  color: #1e293b; 
+  font-family: 'Inter', 'Roboto', sans-serif; /* Prefer Inter if available */
+  -webkit-font-smoothing: antialiased;
+}
+
+// Modern Gradient Text
 .text-gradient-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-clip: text;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+// Glassmorphism Utility
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+// Modern Card - Cleaner, softer shadow
 .modern-card {
-  border-radius: 16px !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-  transition: all 0.3s ease;
   background: white;
+  border-radius: 20px !important;
+  border: 1px solid rgba(0,0,0,0.02);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
 .modern-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02) !important;
 }
 
-.glass-effect {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+// Section Utilities
+.section-padding {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
+
+// Container Limit
+.container-limit {
+  max-width: 1200px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 // Transitions
@@ -42,13 +81,41 @@
 
 // Dark Mode Overrides
 .body--dark {
-  .modern-card {
-    background: #1d1d1d;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3) !important;
-  }
+  background-color: var(--dark-bg);
+  color: #e2e8f0;
 
-  .glass-effect {
-    background: rgba(29, 29, 29, 0.95);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  .modern-card {
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: none !important;
   }
+  
+  .glass {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
+
+// Utilities
+.h-48 {
+  height: 12rem;
+}
+
+.lh-tight {
+  line-height: 1.25;
+}
+
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.ellipsis-3-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3; /* Standard property for compatibility */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

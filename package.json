@@ -1,8 +1,8 @@
 {
-  "name": "NeonRetreat",
+  "name": "toosag",
   "version": "0.0.1",
-  "description": "A Quasar Project",
-  "productName": "NeonRetreat",
+  "description": "Toosag - Finanças Pessoais",
+  "productName": "Toosag",
   "author": "brunopereira <bruno.cpereira@prozis.com>",
   "type": "module",
   "private": true,
