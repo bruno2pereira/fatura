@@ -92,15 +92,15 @@ const isAdmin = computed(() => {
 })
 
 const goToInvoices = () => {
-  router.push('/invoices')
+  router.push('/app/invoices')
 }
 
 const goToDocuments = () => {
-  router.push('/documents')
+  router.push('/app/documents')
 }
 
 const goToBalance = () => {
-  router.push('/balance')
+  router.push('/app/balance')
 }
 
 
@@ -129,11 +129,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* .bg-gradient {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-} */
-/* Removed local gradient to use global .bg-gradient-primary */
+
 
 .selection-container {
   width: 100%;

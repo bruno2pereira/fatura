@@ -31,7 +31,7 @@
                      <div class="text-caption text-grey-7">{{ user.email }}</div>
                    </q-item-section>
                 </q-item>
-                 <q-item clickable v-close-popup @click="router.push('/settings')" class="q-py-md">
+                 <q-item clickable v-close-popup @click="router.push('/app/settings')" class="q-py-md">
                    <q-item-section avatar>
                      <q-icon name="settings" />
                    </q-item-section>

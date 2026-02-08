@@ -77,7 +77,7 @@ const onSubmit = async () => {
   try {
     const authData = await pb.collection('users').authWithPassword(email.value, password.value)
     console.log('Logged in:', authData)
-    router.push('/')
+    router.push('/app')
   } catch (error) {
     console.error('Login failed:', error)
     $q.notify({
